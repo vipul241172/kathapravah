@@ -35,8 +35,8 @@
 <div class="bar">
   <button id="pbtn" onclick="tog()">▶ Play</button>
   <button id="mbtn" onclick="togMusic()">🔇 Music</button>
-  <button class="sbtn" onclick="spd(0.6,this)">Slow</button>
-  <button class="sbtn on" onclick="spd(1.2,this)">Med</button>
+  <button class="sbtn  on" onclick="spd(0.6,this)">Slow</button>
+  <button class="sbtn" onclick="spd(1.2,this)">Med</button>
   <button class="sbtn" onclick="spd(2.2,this)">Fast</button>
 </div>
 
@@ -93,7 +93,7 @@ function togMusic(){
   else { mb.innerText = '🔇 Music'; clearInterval(musicTimer); }
 }
 
-let on=false,sp=1.2,tm;
+let on=false,sp=0.6,tm;
 function run(){if(!on)return;window.scrollBy(0,sp);if(innerHeight+scrollY>=document.body.offsetHeight-2){tog();return;}tm=requestAnimationFrame(run);}
 function tog(){on=!on;document.getElementById('pbtn').innerText=on?'⏸ Pause':'▶ Play';if(on){if(!musicOn)togMusic();run();}else cancelAnimationFrame(tm);}
 function spd(v,b){sp=v;document.querySelectorAll('.sbtn').forEach(function(x){ x.classList.remove('on'); });b.classList.add('on');}
