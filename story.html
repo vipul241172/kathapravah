@@ -10,23 +10,14 @@
   body{font-family:'Noto Sans Gujarati',sans-serif;background:#090d16;color:#fff}
   .bg{position:fixed;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease-in-out;z-index:1}
   .bg.active{opacity:1}
-  /* Photo saaf dekhay te mate ekdam halko shade */
   .shade{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:2}
   .top{position:fixed;top:0;left:0;right:0;background:rgba(10,15,28,.85);backdrop-filter:blur(6px);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;z-index:999}
   .top a{color:#fff;text-decoration:none;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:8px;font-size:14px}
   main{position:relative;z-index:10;padding:80px 18px 130px}
-  /* Paragraph vachhe no gap ochho karyo chhe */
   .sec{min-height:16vh;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-  /* 100% Transparent Card with Crisp Text Shadow */
   .card{
-    background:transparent;
-    padding:12px 16px;
-    max-width:650px;
-    width:100%;
-    font-size:20px;
-    font-weight:600;
-    line-height:1.85;
-    color:#ffffff;
+    background:transparent;padding:12px 16px;max-width:650px;width:100%;
+    font-size:20px;font-weight:600;line-height:1.85;color:#ffffff;
     text-shadow: 0 2px 6px rgba(0,0,0,0.95), 0 0 18px rgba(0,0,0,0.9);
   }
   .bar{position:fixed;bottom:16px;left:0;right:0;margin:auto;width:fit-content;background:rgba(15,23,42,.92);backdrop-filter:blur(8px);padding:8px 14px;border-radius:40px;display:flex;gap:8px;align-items:center;z-index:999;box-shadow:0 8px 25px rgba(0,0,0,.8)}
@@ -105,42 +96,19 @@ function run(){if(!on)return;window.scrollBy(0,sp);if(innerHeight+scrollY>=docum
 function tog(){on=!on;document.getElementById('pbtn').innerText=on?'⏸ Pause':'▶ Play';if(on){if(!musicOn)togMusic();run();}else cancelAnimationFrame(tm);}
 function spd(v,b){sp=v;document.querySelectorAll('.sbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');}
 
-const storyId = new URLSearchParams(location.search).get('id');
-if(!storyId || storyId === "adalaj-ni-vav"){
-  renderStory(fallback);
-}
-</script>
-
-<script type="module">
-import { initializeApp } from "https://gstatic.com";
-import { getFirestore, doc, getDoc } from "https://gstatic.com";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
-  authDomain: "://firebaseapp.com",
-  projectId: "kathapravah-763d0",
-  storageBucket: "kathapravah-763d0.firebasestorage.app",
-  messagingSenderId: "771354906991",
-  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
-};
-
 const sid = new URLSearchParams(location.search).get('id');
-if(sid && sid !== "adalaj-ni-vav"){
-  try {
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const snap = await getDoc(doc(db, "stories", sid));
-    if(snap.exists()){
-      const d = snap.data();
-      renderStory({ cat: d.categoryName, title: d.title, s: d.s });
-    } else {
-      renderStory(fallback);
-    }
-  } catch(e) {
-    renderStory(fallback);
-  }
+if(!sid || sid === "adalaj-ni-vav"){
+  renderStory(fallback);
+} else {
+  fetch("https://googleapis.com" + sid)
+    .then(r => r.json())
+    .then(doc => {
+      if(doc.fields && doc.fields.json){
+        const d = JSON.parse(doc.fields.json.stringValue);
+        renderStory({ cat: d.categoryName, title: d.title, s: d.s });
+      } else { renderStory(fallback); }
+    }).catch(() => renderStory(fallback));
 }
 </script>
 </body>
 </html>
-<!-- COMPLETE -->
