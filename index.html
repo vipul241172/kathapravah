@@ -61,49 +61,46 @@
 </footer>
 
 <script>
-const API_URL = "https://googleapis.com";
-const defaultStories = [{
+const defaultStories = new Array({
   id: "adalaj-ni-vav", category: "history", categoryName: "ઇતિહાસ",
   title: "અડાલજની વાવ: પથ્થરોમાં કોતરાયેલી અમર પ્રેમ અને બલિદાનની ગાથા",
   desc: "ગુજરાતના સ્થાપત્યનો અદભૂત નમૂનો ગણાતી અડાલજની વાવ પાછળ છુપાયેલો એક કરુણ ઇતિહાસ.",
   image: "Adalaj.jpg", readTime: "3 મિનિટ"
-}];
-let allStories = [...defaultStories];
+});
+let allStories = defaultStories.slice();
 
-function render(cat='all'){
-  const list = cat === 'all' ? allStories : allStories.filter(x => x.category === cat);
+function render(cat){
+  const activeCat = cat || 'all';
+  const list = activeCat === 'all' ? allStories : allStories.filter(function(x){ return x.category === activeCat; });
   const g = document.getElementById('grid');
-  if(!list.length){ g.innerHTML = '<p style="color:#94a3b8;text-align:center;grid-column:1/-1">આ કેટેગરીમાં હજુ કોઈ વાર્તા નથી.</p>'; return; }
-  g.innerHTML = list.map(s => `
-    <article class="card">
-      <a href="story.html?id=${s.id}" class="card-link">
-        <div class="thumb">
-          ${s.image ? `<img src="${s.image}" onerror="this.style.display='none'">` : ''}
-          <span class="badge">${s.categoryName}</span>
-        </div>
-        <div class="body">
-          <div><h2>${s.title}</h2><p>${s.desc}</p></div>
-          <div class="foot">
-            <span style="font-size:12px;color:#94a3b8">⏱ ${s.readTime || '3 મિનિટ'}</span>
-            <span class="read-btn">સ્ક્રોલ-સ્ટોરી વાંચો →</span>
-          </div>
-        </div>
-      </a>
-    </article>
-  `).join('');
+  if(!list.length){
+    g.innerHTML = '<p style="color:#94a3b8;text-align:center;grid-column:1/-1">આ કેટેગરીમાં હજુ કોઈ વાર્તા નથી.</p>';
+    return;
+  }
+  g.innerHTML = list.map(function(s){
+    return '<article class="card"><a href="story.html?id=' + s.id + '" class="card-link">' +
+      '<div class="thumb">' + (s.image ? '<img src="' + s.image + '" onerror="this.style.display=\'none\'">' : '') +
+      '<span class="badge">' + s.categoryName + '</span></div>' +
+      '<div class="body"><div><h2>' + s.title + '</h2><p>' + s.desc + '</p></div>' +
+      '<div class="foot"><span style="font-size:12px;color:#94a3b8">⏱ ' + (s.readTime || '3 મિનિટ') + '</span>' +
+      '<span class="read-btn">સ્ક્રોલ-સ્ટોરી વાંચો →</span></div></div></a></article>';
+  }).join('');
 }
 
 function flt(c, b){
-  document.querySelectorAll('.cbtn').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('.cbtn').forEach(function(x){ x.classList.remove('on'); });
   b.classList.add('on');
   render(c);
 }
 
 render('all');
 
-fetch("stories.json?t=" + Date.now()).then(r => r.json()).then(cloud => {
+fetch("stories.json?t=" + Date.now()).then(function(r){ return r.json(); }).then(function(cloud){
   if(cloud && cloud.length){
-    allStories = [...cloud, ...defaultStories];
+    allStories = cloud.concat(defaultStories);
     render('all');
   }
-}).catch(()=>{});
+}).catch(function(){});
+</script>
+</body>
+</html>
