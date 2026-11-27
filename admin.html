@@ -28,7 +28,7 @@
 <div id="login">
   <div class="lbox">
     <h2 style="color:#ef4444;margin-bottom:12px">કથાપ્રવાહ Admin</h2>
-    <input type="password" id="pw" placeholder="પાસવર્ડ (admin123)" onkeypress="if(event.key==='Enter')chk()">
+    <input type="password" id="pw" placeholder="Enter Password" onkeypress="if(event.key==='Enter')chk()">
     <button type="button" class="btn red" style="width:100%;margin-top:12px" onclick="chk()">લોગિન કરો</button>
   </div>
 </div>
@@ -79,9 +79,9 @@
 </div>
 
 <script>
-if(sessionStorage.getItem('ok')==='1') document.getElementById('login').style.display='none';
+
 function chk(){
-  if(document.getElementById('pw').value.trim()==='admin123'){
+  if(document.getElementById('pw').value.trim()==='Vipul@2026#'){
     sessionStorage.setItem('ok','1');
     document.getElementById('login').style.display='none';
   } else alert('ખોટો પાસવર્ડ!');
