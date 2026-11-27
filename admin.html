@@ -35,8 +35,11 @@
 </div>
 
 <header>
-  <b style="color:#ef4444;font-size:20px">કથાપ્રવાહ GitHub Admin</b>
-  <a href="index.html" class="btn dark">🌐 વેબસાઈટ જુઓ</a>
+  <b style="color:#ef4444;font-size:20px">કથાપ્રવાહ Admin</b>
+  <div style="display:flex;gap:8px">
+    <a href="index.html" class="btn dark">🌐 વેબસાઈટ જુઓ</a>
+    <button type="button" class="btn dark" style="color:#f87171" onclick="localStorage.removeItem('gh_tk');location.reload()">Logout</button>
+  </div>
 </header>
 
 <div class="wrap">
@@ -79,7 +82,7 @@ if(localStorage.getItem('gh_tk')){
 function chk(){
   const p = document.getElementById('pw').value.trim();
   const t = document.getElementById('tk').value.trim();
-  if(p === 'admin123' && t.startsWith('gh')){
+  if(p === 'admin123' && t.length > 10){
     localStorage.setItem('gh_tk', t);
     document.getElementById('login').style.display='none';
     show();
@@ -116,11 +119,11 @@ function imgUp(inp){
     const im = new Image();
     im.onload = function(){
       const c = document.createElement('canvas');
-      const s = Math.min(1, 700 / im.width);
+      const s = Math.min(1, 650 / im.width);
       c.width = im.width * s;
       c.height = im.height * s;
       c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
-      const u = c.toDataURL('image/jpeg', 0.65);
+      const u = c.toDataURL('image/jpeg', 0.6);
       const row = inp.closest('.row');
       row.querySelector('.imgv').value = u;
       row.querySelector('.prev').src = u;
@@ -143,11 +146,15 @@ function b64DecodeUnicode(str) {
 
 async function getStoriesFromGH(){
   const tk = localStorage.getItem('gh_tk');
-  const res = await fetch(GH_API + "?t=" + Date.now(), {
-    headers: { "Authorization": "token " + tk }
+  const res = await fetch(GH_API, {
+    cache: "no-store",
+    headers: {
+      "Authorization": "Bearer " + tk,
+      "Accept": "application/vnd.github+json"
+    }
   });
-  if(res.status === 404) return { list: new Array(), sha: null };
   const data = await res.json();
+  if(!res.ok) throw new Error(data.message || "Read failed");
   const list = JSON.parse(b64DecodeUnicode(data.content.replace(/\n/g, '')));
   return { list: list, sha: data.sha };
 }
@@ -167,7 +174,7 @@ async function saveStory(){
   if(!s.length){ alert('ઓછામાં ઓછો ૧ પેરેગ્રાફ લખો!'); return; }
 
   const btn = document.getElementById('pubBtn');
-  btn.innerText = 'GitHub પર સેવ થઈ રહ્યું છે...';
+  btn.innerText = 'સેવ થઈ રહ્યું છે...';
   btn.disabled = true;
 
   try {
@@ -183,22 +190,21 @@ async function saveStory(){
       s: s
     });
 
-    const bodyObj = {
-      message: "Add new story",
-      content: b64EncodeUnicode(JSON.stringify(current.list))
-    };
-    if(current.sha) bodyObj.sha = current.sha;
-
     const putRes = await fetch(GH_API, {
       method: "PUT",
       headers: {
-        "Authorization": "token " + localStorage.getItem('gh_tk'),
+        "Authorization": "Bearer " + localStorage.getItem('gh_tk'),
+        "Accept": "application/vnd.github+json",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(bodyObj)
+      body: JSON.stringify({
+        message: "Add story",
+        content: b64EncodeUnicode(JSON.stringify(current.list)),
+        sha: current.sha
+      })
     });
     const putData = await putRes.json();
-if(!putRes.ok) throw new Error(putData.message || "GitHub Save Error");
+    if(!putRes.ok) throw new Error(putData.message || "Save failed");
     alert('🎉 અભિનંદન! તમારી સ્ટોરી પબ્લિશ થઈ ગઈ છે (૧ મિનિટમાં વેબસાઈટ પર દેખાશે)!');
     location.reload();
   } catch(err) {
@@ -223,7 +229,7 @@ async function show(){
       '<button type="button" onclick="del(' + idx + ')" class="btn dark" style="color:#f87171">ડિલીટ</button></div></div>';
     }).join('');
   } catch(e) {
-    box.innerHTML = '<p style="color:#f87171">લોડ કરવામાં ભૂલ આવી.</p>';
+    box.innerHTML = '<p style="color:#f87171">Error: ' + e.message + '</p>';
   }
 }
 
@@ -233,7 +239,7 @@ async function del(idx){
   current.list.splice(idx, 1);
   await fetch(GH_API, {
     method: "PUT",
-    headers: { "Authorization": "token " + localStorage.getItem('gh_tk'), "Content-Type": "application/json" },
+    headers: { "Authorization": "Bearer " + localStorage.getItem('gh_tk'), "Accept": "application/vnd.github+json", "Content-Type": "application/json" },
     body: JSON.stringify({ message: "Delete story", content: b64EncodeUnicode(JSON.stringify(current.list)), sha: current.sha })
   });
   show();
