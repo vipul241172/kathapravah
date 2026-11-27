@@ -197,7 +197,8 @@ async function saveStory(){
       },
       body: JSON.stringify(bodyObj)
     });
-    if(!putRes.ok) throw new Error("GitHub Save Error");
+    const putData = await putRes.json();
+if(!putRes.ok) throw new Error(putData.message || "GitHub Save Error");
     alert('🎉 અભિનંદન! તમારી સ્ટોરી પબ્લિશ થઈ ગઈ છે (૧ મિનિટમાં વેબસાઈટ પર દેખાશે)!');
     location.reload();
   } catch(err) {
