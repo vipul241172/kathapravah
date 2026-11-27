@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="gu">
 <head>
- <meta name="google-site-verification" content="13-bYL6eWKD-VzGJ0Sy-L9nrnFOa-njeoorWrszGBno" />
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>કથાપ્રવાહ - ગુજરાતી વિઝ્યુઅલ સ્ટોરીઝ અને સમાચાર</title>
@@ -28,8 +27,7 @@
   .card:hover .thumb img{transform:scale(1.05)}
   .badge{position:absolute;top:12px;left:12px;background:#ef4444;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px}
   .body{padding:18px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
-  .body h2{font-size:19px;line-height:1.4;margin-bottom:8px;transition:color .2s}
-  .card:hover .body h2{color:#f87171}
+  .body h2{font-size:19px;line-height:1.4;margin-bottom:8px}
   .body p{font-size:14px;color:#94a3b8;line-height:1.6;margin-bottom:16px}
   .foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #1f2937;padding-top:12px}
   .read-btn{background:#ef4444;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700}
@@ -57,16 +55,19 @@
 
 <main class="grid" id="grid"></main>
 
-<footer>© 2026 કથાપ્રવાહ (KathaPravah). All Rights Reserved.</footer>
+<footer>
+  <a href="pages.html" style="color:#94a3b8;text-decoration:none">About Us • Privacy Policy • Disclaimer • Contact</a><br><br>
+  © 2026 કથાપ્રવાહ (KathaPravah). All Rights Reserved.
+</footer>
 
 <script>
+const API_URL = "https://googleapis.com";
 const defaultStories = [{
   id: "adalaj-ni-vav", category: "history", categoryName: "ઇતિહાસ",
   title: "અડાલજની વાવ: પથ્થરોમાં કોતરાયેલી અમર પ્રેમ અને બલિદાનની ગાથા",
   desc: "ગુજરાતના સ્થાપત્યનો અદભૂત નમૂનો ગણાતી અડાલજની વાવ પાછળ છુપાયેલો એક કરુણ ઇતિહાસ.",
   image: "Adalaj.jpg", readTime: "3 મિનિટ"
 }];
-
 let allStories = [...defaultStories];
 
 function render(cat='all'){
@@ -99,34 +100,15 @@ function flt(c, b){
 }
 
 render('all');
-</script>
 
-<script type="module">
-import { initializeApp } from "https://gstatic.com";
-import { getFirestore, collection, getDocs } from "https://gstatic.com";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
-  authDomain: "://firebaseapp.com",
-  projectId: "kathapravah-763d0",
-  storageBucket: "kathapravah-763d0.firebasestorage.app",
-  messagingSenderId: "771354906991",
-  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
-};
-
-try {
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const snap = await getDocs(collection(db, "stories"));
-  const cloud = [];
-  snap.forEach(d => cloud.push({ id: d.id, ...d.data() }));
-  cloud.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
-  if(cloud.length){
+fetch(API_URL).then(r => r.json()).then(data => {
+  if(data.documents && data.documents.length){
+    const cloud = data.documents.map(doc => ({ id: doc.name.split('/').pop(), ...JSON.parse(doc.fields.json.stringValue) }));
+    cloud.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
     allStories = [...cloud, ...defaultStories];
     render('all');
   }
-} catch(e) { console.log(e); }
+}).catch(()=>{});
 </script>
 </body>
 </html>
-<!-- COMPLETE -->
