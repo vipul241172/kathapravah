@@ -140,7 +140,10 @@
 
 <header>
   <a href="index.html" class="logo">✨ કથાપ્રવાહ</a>
-  <input type="text" class="search-box" placeholder="🔍 વાર્તા શોધો..." oninput="searchStories(this.value)">
+  <div style="display:flex;gap:8px;align-items:center">
+    <button id="instBtn" onclick="installPWA()" style="display:none;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:0;padding:8px 14px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(16,185,129,0.4)">📲 Install App</button>
+    <input type="text" class="search-box" placeholder="🔍 વાર્તા શોધો..." oninput="searchStories(this.value)">
+  </div>
 </header>
 
 <section class="hero">
@@ -221,6 +224,30 @@ fetch("stories.json?t=" + Date.now()).then(function(r){ return r.json(); }).then
   }
 }).catch(function(){});
 </script>
- <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}</script>
+ <script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js');
+}
+
+let deferredPrompt;
+const instBtn = document.getElementById('instBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  instBtn.style.display = 'inline-block';
+});
+
+function installPWA(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then((choice) => {
+    if(choice.outcome === 'accepted'){
+      instBtn.style.display = 'none';
+    }
+    deferredPrompt = null;
+  });
+}
+</script>
 </body>
 </html>
