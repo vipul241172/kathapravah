@@ -36,22 +36,7 @@
   <button class="sbtn" onclick="spd(2.2,this)">Fast</button>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://gstatic.com";
-import { getFirestore, doc, getDoc } from "https://gstatic.com";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
-  authDomain: "kathapravah-763d0.firebaseapp.com",
-  projectId: "kathapravah-763d0",
-  storageBucket: "kathapravah-763d0.firebasestorage.app",
-  messagingSenderId: "771354906991",
-  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
+<script>
 const fallback = {
   cat:"ઇતિહાસ",title:"અડાલજની વાવ: પથ્થરોમાં કોતરાયેલી અમર પ્રેમ અને બલિદાનની ગાથા",s:[
     {t:"૧૫મી સદીમાં ગુજરાતના અડાલજ ગામમાં રાજા વીરસિંહ વાઘેલાનું શાસન હતું. પ્રજાની પાણીની તકલીફ દૂર કરવા રાજાએ એક ભવ્ય વાવ બનાવવાનું કામ શરૂ કર્યું.",i:"Adalaj.jpg",c:"#2e1065"},
@@ -61,28 +46,21 @@ const fallback = {
   ]
 };
 
-async function init(){
-  const id = new URLSearchParams(location.search).get('id');
-  let st = fallback;
-  if(id && id !== "adalaj-ni-vav"){
-    const snap = await getDoc(doc(db, "stories", id));
-    if(snap.exists()){
-      const d = snap.data();
-      st = { cat: d.categoryName, title: d.title, s: d.s };
-    }
-  }
+function renderStory(st){
   document.title = st.title + " - કથાપ્રવાહ";
   document.getElementById('cat').innerText = st.cat;
   const bgs=document.getElementById('bgs'),box=document.getElementById('box');
-  box.innerHTML=`<div class="sec"><div class="card" style="text-align:center"><h2 style="font-size:23px;margin-bottom:8px">${st.title}</h2><p style="font-size:13px;color:#cbd5e1">નીચે સ્ક્રોલ કરો અથવા Play દબાવો ↓</p></div></div>`;
+  bgs.innerHTML = '';
+  box.innerHTML = `<div class="sec"><div class="card" style="text-align:center"><h2 style="font-size:23px;margin-bottom:8px">${st.title}</h2><p style="font-size:13px;color:#cbd5e1">નીચે સ્ક્રોલ કરો અથવા Play દબાવો ↓</p></div></div>`;
   st.s.forEach((x,i)=>{
-    bgs.innerHTML+=`<div id="b${i}" class="bg ${i===0?'active':''}" style="background-color:${x.c};background-image:url('${x.i}')"></div>`;
-    box.innerHTML+=`<div class="sec" data-i="${i}"><div class="card">${x.t}</div></div>`;
+    bgs.innerHTML += `<div id="b${i}" class="bg ${i===0?'active':''}" style="background-color:${x.c||'#1e1b4b'};background-image:url('${x.i}')"></div>`;
+    box.innerHTML += `<div class="sec" data-i="${i}"><div class="card">${x.t}</div></div>`;
   });
   const ob=new IntersectionObserver(es=>es.forEach(e=>{
     if(e.isIntersecting&&e.target.dataset.i!==undefined){
       document.querySelectorAll('.bg').forEach(b=>b.classList.remove('active'));
-      document.getElementById('b'+e.target.dataset.i).classList.add('active');
+      const el = document.getElementById('b'+e.target.dataset.i);
+      if(el) el.classList.add('active');
     }
   }),{rootMargin:"-30% 0px -30% 0px"});
   document.querySelectorAll('.sec').forEach(s=>ob.observe(s));
@@ -102,18 +80,53 @@ function playSoftNote(){
   osc.connect(gain); gain.connect(audioCtx.destination);
   osc.start(); osc.stop(audioCtx.currentTime + 3);
 }
-window.togMusic = () => {
+function togMusic(){
   musicOn = !musicOn;
   const mb = document.getElementById('mbtn');
   if(musicOn){ mb.innerText = '🔊 Music'; playSoftNote(); musicTimer = setInterval(playSoftNote, 2400); }
   else { mb.innerText = '🔇 Music'; clearInterval(musicTimer); }
-};
+}
+
 let on=false,sp=1.2,tm;
 function run(){if(!on)return;window.scrollBy(0,sp);if(innerHeight+scrollY>=document.body.offsetHeight-2){tog();return;}tm=requestAnimationFrame(run);}
-window.tog = () => {on=!on;document.getElementById('pbtn').innerText=on?'⏸ Pause':'▶ Play';if(on){if(!musicOn)togMusic();run();}else cancelAnimationFrame(tm);};
-window.spd = (v,b) => {sp=v;document.querySelectorAll('.sbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');};
+function tog(){on=!on;document.getElementById('pbtn').innerText=on?'⏸ Pause':'▶ Play';if(on){if(!musicOn)togMusic();run();}else cancelAnimationFrame(tm);}
+function spd(v,b){sp=v;document.querySelectorAll('.sbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');}
 
-init();
+const storyId = new URLSearchParams(location.search).get('id');
+if(!storyId || storyId === "adalaj-ni-vav"){
+  renderStory(fallback);
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://gstatic.com";
+import { getFirestore, doc, getDoc } from "https://gstatic.com";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
+  authDomain: "://firebaseapp.com",
+  projectId: "kathapravah-763d0",
+  storageBucket: "kathapravah-763d0.firebasestorage.app",
+  messagingSenderId: "771354906991",
+  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
+};
+
+const sid = new URLSearchParams(location.search).get('id');
+if(sid && sid !== "adalaj-ni-vav"){
+  try {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const snap = await getDoc(doc(db, "stories", sid));
+    if(snap.exists()){
+      const d = snap.data();
+      renderStory({ cat: d.categoryName, title: d.title, s: d.s });
+    } else {
+      renderStory(fallback);
+    }
+  } catch(e) {
+    renderStory(fallback);
+  }
+}
 </script>
 </body>
 </html>
