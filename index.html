@@ -8,63 +8,164 @@
 <link href="https://googleapis.com" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Noto Sans Gujarati',sans-serif;background:#090d16;color:#fff;min-height:100vh;display:flex;flex-direction:column}
-  header{background:#111827;border-bottom:1px solid #1f2937;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
-  .logo{font-size:24px;font-weight:700;color:#ef4444;text-decoration:none}
-  .adm-btn{background:#ef4444;color:#fff;text-decoration:none;padding:7px 14px;border-radius:20px;font-size:13px;font-weight:700}
-  .hero{text-align:center;padding:36px 16px 20px;max-width:800px;margin:0 auto}
-  .hero h1{font-size:30px;margin-bottom:8px}
-  .hero p{color:#94a3b8;font-size:15px}
-  .cats{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px}
-  .cbtn{background:#111827;color:#cbd5e1;border:1px solid #334155;padding:8px 16px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700}
-  .cbtn.on{background:#ef4444;color:#fff;border-color:#ef4444}
-  .grid{max-width:1050px;margin:20px auto;padding:0 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;width:100%;flex:1}
-  .card{background:#111827;border:1px solid #1f2937;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,border-color .2s}
-  .card:hover{transform:translateY(-4px);border-color:#ef4444}
+  body{
+    font-family:'Noto Sans Gujarati',sans-serif;
+    background:#060913;
+    color:#fff;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* Animated Ambient Background Glows */
+  .orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:0.28;z-index:0;pointer-events:none;animation:float 12s infinite alternate ease-in-out}
+  .orb-1{width:380px;height:380px;background:#ef4444;top:-80px;left:-80px}
+  .orb-2{width:420px;height:420px;background:#3b82f6;bottom:10%;right:-100px;animation-delay:4s}
+  .orb-3{width:300px;height:300px;background:#8b5cf6;top:40%;left:30%;animation-delay:8s}
+  @keyframes float{
+    0%{transform:translate(0,0) scale(1)}
+    100%{transform:translate(40px,30px) scale(1.15)}
+  }
+
+  /* Glass Header */
+  header{
+    background:rgba(10,15,28,0.75);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    padding:14px 22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .logo{
+    font-size:26px;font-weight:800;text-decoration:none;
+    background:linear-gradient(90deg,#ef4444,#f97316,#facc15);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    letter-spacing:0.5px;
+  }
+  .search-box{
+    background:rgba(30,41,59,0.7);border:1px solid rgba(255,255,255,0.12);
+    color:#fff;padding:8px 14px;border-radius:20px;font-family:inherit;font-size:13px;
+    width:190px;outline:none;transition:0.3s;
+  }
+  .search-box:focus{width:240px;border-color:#ef4444;background:rgba(30,41,59,0.95)}
+
+  /* Hero Section */
+  .hero{
+    position:relative;z-index:10;text-align:center;
+    padding:48px 16px 24px;max-width:850px;margin:0 auto;
+    animation:fadeDown 0.8s ease-out;
+  }
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}
+  .pill-tag{
+    display:inline-block;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);
+    color:#fca5a5;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:14px;
+  }
+  .hero h1{font-size:36px;font-weight:800;line-height:1.3;margin-bottom:12px}
+  .grad-text{background:linear-gradient(90deg,#ef4444,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{color:#94a3b8;font-size:16px;max-width:600px;margin:0 auto}
+
+  /* Category Tabs */
+  .cats{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:26px}
+  .cbtn{
+    background:rgba(17,24,39,0.8);backdrop-filter:blur(8px);
+    color:#cbd5e1;border:1px solid rgba(255,255,255,0.1);
+    padding:9px 18px;border-radius:25px;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;transition:0.25s;
+  }
+  .cbtn:hover{border-color:#ef4444;color:#fff;transform:translateY(-2px)}
+  .cbtn.on{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border-color:transparent;box-shadow:0 6px 20px rgba(239,68,68,0.4)}
+
+  /* Stories Grid */
+  .grid{
+    position:relative;z-index:10;max-width:1100px;margin:24px auto;padding:0 16px;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));
+    gap:24px;width:100%;flex:1;
+  }
+  .card{
+    background:rgba(17,24,39,0.75);backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.09);border-radius:18px;overflow:hidden;
+    display:flex;flex-direction:column;
+    transition:transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s, border-color 0.35s;
+    animation:cardUp 0.6s ease-out both;
+  }
+  @keyframes cardUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+  .card:hover{
+    transform:translateY(-8px) scale(1.01);
+    border-color:rgba(239,68,68,0.6);
+    box-shadow:0 20px 40px rgba(0,0,0,0.6), 0 0 25px rgba(239,68,68,0.18);
+  }
   .card-link{text-decoration:none;color:inherit;display:flex;flex-direction:column;flex:1}
-  .thumb{height:190px;background:linear-gradient(135deg,#450a0a,#1e1b4b);position:relative;overflow:hidden}
-  .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
-  .card:hover .thumb img{transform:scale(1.05)}
-  .badge{position:absolute;top:12px;left:12px;background:#ef4444;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px}
-  .body{padding:18px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
-  .body h2{font-size:19px;line-height:1.4;margin-bottom:8px}
+  .thumb{height:200px;background:linear-gradient(135deg,#450a0a,#1e1b4b);position:relative;overflow:hidden}
+  .thumb img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease}
+  .card:hover .thumb img{transform:scale(1.1)}
+  .thumb::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(17,24,39,0.9) 0%,transparent 50%)}
+  .badge{
+    position:absolute;top:12px;left:12px;z-index:2;
+    background:rgba(239,68,68,0.92);backdrop-filter:blur(4px);
+    color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px;
+  }
+  .body{padding:18px 20px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+  .body h2{font-size:19px;font-weight:700;line-height:1.45;margin-bottom:8px;transition:color 0.2s}
+  .card:hover .body h2{color:#fca5a5}
   .body p{font-size:14px;color:#94a3b8;line-height:1.6;margin-bottom:16px}
-  .foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #1f2937;padding-top:12px}
-  .read-btn{background:#ef4444;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700}
-  footer{background:#05080f;border-top:1px solid #1f2937;text-align:center;padding:20px;color:#64748b;font-size:13px;margin-top:40px}
+  .foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px}
+  .read-btn{
+    background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;
+    padding:8px 15px;border-radius:10px;font-size:13px;font-weight:700;
+    box-shadow:0 4px 12px rgba(239,68,68,0.3);transition:0.2s;
+  }
+  .card:hover .read-btn{box-shadow:0 6px 18px rgba(239,68,68,0.55)}
+
+  /* Footer */
+  footer{
+    position:relative;z-index:10;background:rgba(5,8,15,0.9);
+    border-top:1px solid rgba(255,255,255,0.08);text-align:center;
+    padding:24px 16px;color:#64748b;font-size:13px;margin-top:50px;
+  }
+  footer a{color:#94a3b8;text-decoration:none;margin:0 8px;transition:color 0.2s}
+  footer a:hover{color:#fff}
 </style>
 </head>
 <body>
 
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
 <header>
-  <a href="index.html" class="logo">કથાપ્રવાહ</a>
-  <a href="admin.html" class="adm-btn">+ Admin</a>
+  <a href="index.html" class="logo">✨ કથાપ્રવાહ</a>
+  <input type="text" class="search-box" placeholder="🔍 વાર્તા શોધો..." oninput="searchStories(this.value)">
 </header>
 
 <section class="hero">
-  <h1>વાર્તાઓ જે તમારી સાથે <span style="color:#ef4444">ચાલે છે</span></h1>
-  <p>સ્ક્રોલ કરો અને દરેક ફકરા સાથે બદલાતા દ્રશ્યોનો અનોખો અનુભવ લો.</p>
+  <span class="pill-tag">🎬 ગુજરાતી વિઝ્યુઅલ સ્ટોરીટેલિંગ</span>
+  <h1>વાર્તાઓ જે તમારી સાથે <span class="grad-text">ચાલે છે</span></h1>
+  <p>સ્ક્રોલ કરો અને દરેક ફકરા સાથે બદલાતા સિનેમેટિક દ્રશ્યો તથા સંગીતનો અનોખો અનુભવ લો.</p>
   <div class="cats">
-    <button class="cbtn on" onclick="flt('all',this)">બધી વાર્તાઓ</button>
-    <button class="cbtn" onclick="flt('news',this)">સમાચાર</button>
-    <button class="cbtn" onclick="flt('horror',this)">રહસ્યમય વાર્તાઓ</button>
-    <button class="cbtn" onclick="flt('history',this)">ઇતિહાસ</button>
-    <button class="cbtn" onclick="flt('tech',this)">ટેકનોલોજી</button>
+    <button class="cbtn on" onclick="flt('all',this)">✨ બધી વાર્તાઓ</button>
+    <button class="cbtn" onclick="flt('news',this)">📰 સમાચાર</button>
+    <button class="cbtn" onclick="flt('horror',this)">👻 રહસ્યમય વાર્તાઓ</button>
+    <button class="cbtn" onclick="flt('history',this)">🏛️ ઇતિહાસ</button>
+    <button class="cbtn" onclick="flt('tech',this)">🚀 ટેકનોલોજી</button>
   </div>
 </section>
 
 <main class="grid" id="grid"></main>
 
 <footer>
-  <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:12px">
-    <a href="about.html" style="color:#94a3b8;text-decoration:none">About Us</a> •
-    <a href="privacy.html" style="color:#94a3b8;text-decoration:none">Privacy Policy</a> •
-    <a href="disclaimer.html" style="color:#94a3b8;text-decoration:none">Disclaimer</a> •
-    <a href="contact.html" style="color:#94a3b8;text-decoration:none">Contact</a>
+  <div style="margin-bottom:12px">
+    <a href="about.html">About Us</a> •
+    <a href="privacy.html">Privacy Policy</a> •
+    <a href="disclaimer.html">Disclaimer</a> •
+    <a href="contact.html">Contact</a>
   </div>
   © 2026 કથાપ્રવાહ (KathaPravah). All Rights Reserved.
 </footer>
-
 
 <script>
 const defaultStories = new Array({
@@ -74,17 +175,16 @@ const defaultStories = new Array({
   image: "Adalaj.jpg", readTime: "3 મિનિટ"
 });
 let allStories = defaultStories.slice();
+let currentCat = 'all';
 
-function render(cat){
-  const activeCat = cat || 'all';
-  const list = activeCat === 'all' ? allStories : allStories.filter(function(x){ return x.category === activeCat; });
+function render(list){
   const g = document.getElementById('grid');
   if(!list.length){
-    g.innerHTML = '<p style="color:#94a3b8;text-align:center;grid-column:1/-1">આ કેટેગરીમાં હજુ કોઈ વાર્તા નથી.</p>';
+    g.innerHTML = '<p style="color:#94a3b8;text-align:center;grid-column:1/-1;padding:40px">કોઈ વાર્તા મળી નથી.</p>';
     return;
   }
-  g.innerHTML = list.map(function(s){
-    return '<article class="card"><a href="story.html?id=' + s.id + '" class="card-link">' +
+  g.innerHTML = list.map(function(s, idx){
+    return '<article class="card" style="animation-delay:' + (idx * 0.08) + 's"><a href="story.html?id=' + s.id + '" class="card-link">' +
       '<div class="thumb">' + (s.image ? '<img src="' + s.image + '" onerror="this.style.display=\'none\'">' : '') +
       '<span class="badge">' + s.categoryName + '</span></div>' +
       '<div class="body"><div><h2>' + s.title + '</h2><p>' + s.desc + '</p></div>' +
@@ -94,17 +194,29 @@ function render(cat){
 }
 
 function flt(c, b){
+  currentCat = c;
   document.querySelectorAll('.cbtn').forEach(function(x){ x.classList.remove('on'); });
   b.classList.add('on');
-  render(c);
+  const list = c === 'all' ? allStories : allStories.filter(function(x){ return x.category === c; });
+  render(list);
 }
 
-render('all');
+function searchStories(q){
+  const term = q.trim().toLowerCase();
+  const base = currentCat === 'all' ? allStories : allStories.filter(function(x){ return x.category === currentCat; });
+  if(!term){ render(base); return; }
+  const filtered = base.filter(function(x){
+    return (x.title && x.title.toLowerCase().includes(term)) || (x.desc && x.desc.toLowerCase().includes(term));
+  });
+  render(filtered);
+}
+
+render(allStories);
 
 fetch("stories.json?t=" + Date.now()).then(function(r){ return r.json(); }).then(function(cloud){
   if(cloud && cloud.length){
     allStories = cloud.concat(defaultStories);
-    render('all');
+    flt(currentCat, document.querySelector('.cbtn.on'));
   }
 }).catch(function(){});
 </script>
