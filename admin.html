@@ -28,7 +28,7 @@
 <div id="login">
   <div class="lbox">
     <h2 style="color:#ef4444;margin-bottom:12px">કથાપ્રવાહ Admin</h2>
-    <input type="password" id="pw" placeholder="પાસવર્ડ (admin123)">
+    <input type="password" id="pw" placeholder="પાસવર્ડ (admin123)" onkeypress="if(event.key==='Enter')chk()">
     <button class="btn red" style="width:100%;margin-top:12px" onclick="chk()">લોગિન કરો</button>
   </div>
 </div>
@@ -54,7 +54,7 @@
     <input type="text" id="dsc" placeholder="હોમપેજ માટે ૨ લાઈન...">
     <div id="steps"></div>
     <button class="btn dark" style="margin-top:12px" onclick="add()">+ પેરેગ્રાફ ઉમેરો</button>
-    <button id="pubBtn" class="btn green" onclick="save()">🚀 ઓનલાઈન પબ્લિશ કરો</button>
+    <button id="pubBtn" class="btn green" onclick="saveStory()">🚀 ઓનલાઈન પબ્લિશ કરો</button>
   </div>
 
   <div class="card">
@@ -63,32 +63,17 @@
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://gstatic.com";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://gstatic.com";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
-  authDomain: "kathapravah-763d0.firebaseapp.com",
-  projectId: "kathapravah-763d0",
-  storageBucket: "kathapravah-763d0.firebasestorage.app",
-  messagingSenderId: "771354906991",
-  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
+<script>
 if(sessionStorage.getItem('ok')==='1') document.getElementById('login').style.display='none';
-window.chk = () => {
-  if(document.getElementById('pw').value==='admin123'){
+function chk(){
+  if(document.getElementById('pw').value.trim()==='admin123'){
     sessionStorage.setItem('ok','1');
     document.getElementById('login').style.display='none';
-  } else alert('ખોટો પાસવર્ડ!');
-};
+  } else { alert('ખોટો પાસવર્ડ!'); }
+}
 
 let n=0;
-window.add = () => {
+function add(){
   n++;
   const d=document.createElement('div');
   d.className='step';
@@ -104,18 +89,18 @@ window.add = () => {
       <img class="prev" src="">
     </div>`;
   document.getElementById('steps').appendChild(d);
-};
+}
 
-window.imgUp = (inp) => {
-  const f=inp.files; if(!f)return;
+function imgUp(inp){
+  const f=inp.files[0]; if(!f)return;
   const r=new FileReader();
   r.onload=e=>{
     const im=new Image();
     im.onload=()=>{
-      const c=document.createElement('canvas'),s=Math.min(1,750/im.width);
+      const c=document.createElement('canvas'),s=Math.min(1,700/im.width);
       c.width=im.width*s; c.height=im.height*s;
       c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-      const u=c.toDataURL('image/jpeg',0.65);
+      const u=c.toDataURL('image/jpeg',0.6);
       const row=inp.closest('.row');
       row.querySelector('.imgv').value=u;
       row.querySelector('.prev').src=u;
@@ -123,9 +108,28 @@ window.imgUp = (inp) => {
     im.src=e.target.result;
   };
   r.readAsDataURL(f);
+}
+
+add(); add();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://gstatic.com";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://gstatic.com";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
+  authDomain: "://firebaseapp.com",
+  projectId: "kathapravah-763d0",
+  storageBucket: "kathapravah-763d0.firebasestorage.app",
+  messagingSenderId: "771354906991",
+  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
 };
 
-window.save = async () => {
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.saveStory = async () => {
   const c=document.getElementById('cat').value.split('|');
   const t=document.getElementById('ttl').value.trim();
   const d=document.getElementById('dsc').value.trim();
@@ -141,8 +145,8 @@ window.save = async () => {
   btn.innerText='સેવ થઈ રહ્યું છે...'; btn.disabled=true;
   try {
     await addDoc(collection(db, "stories"), {
-      category:c, categoryName:c, title:t,
-      desc:d||s.t.slice(0,80), image:s.i,
+      category:c[0], categoryName:c[1], title:t,
+      desc:d||s[0].t.slice(0,80), image:s[0].i,
       readTime:'3 મિનિટ', s:s, createdAt: Date.now()
     });
     alert('🎉 સ્ટોરી ઓનલાઈન પબ્લિશ થઈ ગઈ!');
@@ -155,21 +159,21 @@ window.save = async () => {
 
 async function show(){
   const box=document.getElementById('list');
-  const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  if(snap.empty){ box.innerHTML='<p style="color:#64748b;font-size:13px">હજુ કોઈ ઓનલાઈન સ્ટોરી નથી.</p>'; return; }
-  box.innerHTML='';
-  snap.forEach(docSnap => {
-    const x = docSnap.data();
-    box.innerHTML += `
+  try {
+    const snap = await getDocs(collection(db, "stories"));
+    if(snap.empty){ box.innerHTML='<p style="color:#64748b;font-size:13px">હજુ કોઈ ઓનલાઈન સ્ટોરી નથી.</p>'; return; }
+    const arr=[];
+    snap.forEach(d => arr.push({id:d.id, ...d.data()}));
+    arr.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+    box.innerHTML = arr.map(x => `
       <div class="item">
         <div><b>${x.title}</b><br><small style="color:#94a3b8">${x.categoryName}</small></div>
         <div>
-          <a href="story.html?id=${docSnap.id}" class="btn dark">જુઓ</a>
-          <button onclick="del('${docSnap.id}')" class="btn dark" style="color:#f87171">ડિલીટ</button>
+          <a href="story.html?id=${x.id}" class="btn dark">જુઓ</a>
+          <button onclick="del('${x.id}')" class="btn dark" style="color:#f87171">ડિલીટ</button>
         </div>
-      </div>`;
-  });
+      </div>`).join('');
+  } catch(e) { box.innerHTML='<p style="color:#f87171">Error loading stories</p>'; }
 }
 
 window.del = async (id) => {
@@ -178,7 +182,7 @@ window.del = async (id) => {
   show();
 };
 
-add(); add(); show();
+show();
 </script>
 </body>
 </html>
