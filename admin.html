@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin - કથાપ્રવાહ</title>
 <link href="https://googleapis.com" rel="stylesheet">
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Noto Sans Gujarati',sans-serif;background:#090d16;color:#fff;padding-bottom:50px}
@@ -17,9 +19,9 @@
   input,select,textarea{width:100%;background:#1e293b;border:1px solid #334155;color:#fff;padding:10px;border-radius:8px;font-family:inherit;font-size:14px}
   .step{background:#0f172a;border:1px dashed #334155;padding:14px;border-radius:12px;margin-top:14px}
   .row{display:flex;gap:10px;align-items:center;margin-top:8px}
-  .prev{width:70px;height:50px;object-fit:cover;border-radius:6px;background:#1e293b}
+  .prev{width:75px;height:52px;object-fit:cover;border-radius:6px;background:#1e293b}
   .btn{border:0;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;font-size:13px}
-  .red{background:#ef4444;color:#fff} .dark{background:#1e293b;color:#fff} .green{background:#10b981;color:#fff;width:100%;margin-top:16px;font-size:15px}
+  .red{background:#ef4444;color:#fff} .dark{background:#1e293b;color:#fff} .green{background:#10b981;color:#fff;width:100%;margin-top:16px;font-size:15px;padding:14px}
   .item{display:flex;justify-content:space-between;align-items:center;background:#1e293b;padding:12px;border-radius:10px;margin-top:10px}
 </style>
 </head>
@@ -53,8 +55,8 @@
     <label>ટૂંકું વર્ણન</label>
     <input type="text" id="dsc" placeholder="હોમપેજ માટે ૨ લાઈન...">
     <div id="steps"></div>
-    <button class="btn dark" style="margin-top:12px" onclick="add()">+ પેરેગ્રાફ ઉમેરો</button>
-    <button id="pubBtn" class="btn green" onclick="saveStory()">🚀 ઓનલાઈન પબ્લિશ કરો</button>
+    <button type="button" class="btn dark" style="margin-top:12px" onclick="add()">+ પેરેગ્રાફ ઉમેરો</button>
+    <button type="button" id="pubBtn" class="btn green" onclick="saveStory()">🚀 ઓનલાઈન પબ્લિશ કરો</button>
   </div>
 
   <div class="card">
@@ -64,6 +66,18 @@
 </div>
 
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
+  authDomain: "://firebaseapp.com",
+  projectId: "kathapravah-763d0",
+  storageBucket: "kathapravah-763d0.firebasestorage.app",
+  messagingSenderId: "771354906991",
+  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 if(sessionStorage.getItem('ok')==='1') document.getElementById('login').style.display='none';
 function chk(){
   if(document.getElementById('pw').value.trim()==='admin123'){
@@ -80,7 +94,7 @@ function add(){
   d.innerHTML=`
     <div style="display:flex;justify-content:space-between">
       <b style="color:#f87171;font-size:13px">પેરેગ્રાફ #${n}</b>
-      ${n>1?'<button onclick="this.parentElement.parentElement.remove()" style="color:#f87171;background:none;border:0;cursor:pointer">કાઢો</button>':''}
+      ${n>1?'<button type="button" onclick="this.parentElement.parentElement.remove()" style="color:#f87171;background:none;border:0;cursor:pointer">કાઢો</button>':''}
     </div>
     <textarea rows="2" class="txt" placeholder="ગુજરાતી લખાણ..." style="margin-top:6px"></textarea>
     <div class="row">
@@ -92,97 +106,94 @@ function add(){
 }
 
 function imgUp(inp){
-  const f=inp.files[0]; if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{
-    const im=new Image();
-    im.onload=()=>{
-      const c=document.createElement('canvas'),s=Math.min(1,700/im.width);
-      c.width=im.width*s; c.height=im.height*s;
-      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-      const u=c.toDataURL('image/jpeg',0.6);
-      const row=inp.closest('.row');
-      row.querySelector('.imgv').value=u;
-      row.querySelector('.prev').src=u;
+  const f = inp.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = function(e){
+    const im = new Image();
+    im.onload = function(){
+      const c = document.createElement('canvas');
+      const s = Math.min(1, 600 / im.width);
+      c.width = im.width * s;
+      c.height = im.height * s;
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+      const u = c.toDataURL('image/jpeg', 0.55);
+      const row = inp.closest('.row');
+      row.querySelector('.imgv').value = u;
+      row.querySelector('.prev').src = u;
     };
-    im.src=e.target.result;
+    im.src = e.target.result;
   };
   r.readAsDataURL(f);
 }
 
-add(); add();
-</script>
+function saveStory(){
+  const c = document.getElementById('cat').value.split('|');
+  const t = document.getElementById('ttl').value.trim();
+  const d = document.getElementById('dsc').value.trim();
+  if(!t){ alert('શીર્ષક લખો!'); return; }
 
-<script type="module">
-import { initializeApp } from "https://gstatic.com";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://gstatic.com";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
-  authDomain: "://firebaseapp.com",
-  projectId: "kathapravah-763d0",
-  storageBucket: "kathapravah-763d0.firebasestorage.app",
-  messagingSenderId: "771354906991",
-  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.saveStory = async () => {
-  const c=document.getElementById('cat').value.split('|');
-  const t=document.getElementById('ttl').value.trim();
-  const d=document.getElementById('dsc').value.trim();
-  if(!t)return alert('શીર્ષક લખો!');
-  const s=[];
-  document.querySelectorAll('.step').forEach(el=>{
-    const tx=el.querySelector('.txt').value.trim();
-    const im=el.querySelector('.imgv').value || 'Adalaj.jpg';
-    if(tx) s.push({t:tx,i:im,c:'#1e1b4b'});
+  const s = [];
+  document.querySelectorAll('.step').forEach(el => {
+    const tx = el.querySelector('.txt').value.trim();
+    const im = el.querySelector('.imgv').value || 'Adalaj.jpg';
+    if(tx) s.push({ t: tx, i: im, c: '#1e1b4b' });
   });
-  if(!s.length)return alert('ઓછામાં ઓછો ૧ પેરેગ્રાફ લખો!');
-  const btn=document.getElementById('pubBtn');
-  btn.innerText='સેવ થઈ રહ્યું છે...'; btn.disabled=true;
-  try {
-    await addDoc(collection(db, "stories"), {
-      category:c[0], categoryName:c[1], title:t,
-      desc:d||s[0].t.slice(0,80), image:s[0].i,
-      readTime:'3 મિનિટ', s:s, createdAt: Date.now()
-    });
-    alert('🎉 સ્ટોરી ઓનલાઈન પબ્લિશ થઈ ગઈ!');
-    location.reload();
-  } catch(e) {
-    alert('Error: ' + e.message);
-    btn.innerText='🚀 ઓનલાઈન પબ્લિશ કરો'; btn.disabled=false;
-  }
-};
 
-async function show(){
-  const box=document.getElementById('list');
-  try {
-    const snap = await getDocs(collection(db, "stories"));
-    if(snap.empty){ box.innerHTML='<p style="color:#64748b;font-size:13px">હજુ કોઈ ઓનલાઈન સ્ટોરી નથી.</p>'; return; }
-    const arr=[];
-    snap.forEach(d => arr.push({id:d.id, ...d.data()}));
-    arr.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
-    box.innerHTML = arr.map(x => `
-      <div class="item">
-        <div><b>${x.title}</b><br><small style="color:#94a3b8">${x.categoryName}</small></div>
-        <div>
-          <a href="story.html?id=${x.id}" class="btn dark">જુઓ</a>
-          <button onclick="del('${x.id}')" class="btn dark" style="color:#f87171">ડિલીટ</button>
-        </div>
-      </div>`).join('');
-  } catch(e) { box.innerHTML='<p style="color:#f87171">Error loading stories</p>'; }
+  if(!s.length){ alert('ઓછામાં ઓછો ૧ પેરેગ્રાફ લખો!'); return; }
+
+  const btn = document.getElementById('pubBtn');
+  btn.innerText = 'સેવ થઈ રહ્યું છે...';
+  btn.disabled = true;
+
+  db.collection("stories").add({
+    category: c[0],
+    categoryName: c[1],
+    title: t,
+    desc: d || s[0].t.slice(0, 80),
+    image: s[0].i,
+    readTime: Math.max(2, Math.ceil(s.length / 2)) + ' મિનિટ',
+    s: s,
+    createdAt: Date.now()
+  }).then(() => {
+    alert('🎉 અભિનંદન! તમારી સ્ટોરી ઓનલાઈન પબ્લિશ થઈ ગઈ!');
+    location.reload();
+  }).catch(err => {
+    alert('Error: ' + err.message);
+    btn.innerText = '🚀 ઓનલાઈન પબ્લિશ કરો';
+    btn.disabled = false;
+  });
 }
 
-window.del = async (id) => {
-  if(!confirm('ડિલીટ કરવી છે?')) return;
-  await deleteDoc(doc(db, "stories", id));
-  show();
-};
+function show(){
+  const box = document.getElementById('list');
+  db.collection("stories").get().then(snap => {
+    if(snap.empty){
+      box.innerHTML = '<p style="color:#64748b;font-size:13px">હજુ કોઈ ઓનલાઈન સ્ટોરી નથી.</p>';
+      return;
+    }
+    const arr = [];
+    snap.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
+    arr.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+    box.innerHTML = arr.map(x => `
+      <div class="item">
+        <div><b>${x.title}</b><br><small style="color:#94a3b8">${x.categoryName} • ${x.s ? x.s.length : 0} પેરેગ્રાફ</small></div>
+        <div>
+          <a href="story.html?id=${x.id}" class="btn dark">જુઓ</a>
+          <button type="button" onclick="del('${x.id}')" class="btn dark" style="color:#f87171">ડિલીટ</button>
+        </div>
+      </div>`).join('');
+  }).catch(err => {
+    box.innerHTML = '<p style="color:#f87171">Error: ' + err.message + '</p>';
+  });
+}
 
-show();
+function del(id){
+  if(!confirm('ડિલીટ કરવી છે?')) return;
+  db.collection("stories").doc(id).delete().then(() => show());
+}
+
+add(); add(); show();
 </script>
 </body>
 </html>
