@@ -101,8 +101,8 @@ function togMusic(){
   else { mb.innerText = '🔇 Music'; clearInterval(musicTimer); }
 }
 
-// Manual Toggle Voiceover with Desktop Fallback
-let voiceOn = false, voiceIdx = 0;
+// Clean & Instant Stop Voiceover Logic
+let voiceOn = false, voiceIdx = 0, voiceWatcher = null, currentUtter = null;
 
 function getBestVoice(){
   const voices = window.speechSynthesis.getVoices();
@@ -110,18 +110,27 @@ function getBestVoice(){
          voices.find(v => v.lang.includes('hi')) ||
          voices.find(v => v.lang.includes('en-IN')) || null;
 }
+if('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = getBestVoice;
 
-if('speechSynthesis' in window){
-  window.speechSynthesis.onvoiceschanged = getBestVoice;
+function stopVoiceCompletely(){
+  voiceOn = false;
+  clearInterval(voiceWatcher);
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  currentUtter = null;
+  const vb = document.getElementById('vbtn');
+  vb.innerText = '🔇 Voice';
+  vb.classList.remove('on');
+  document.querySelectorAll('.card').forEach(function(c){ c.classList.remove('speaking'); });
 }
 
 function speakStep(idx){
   if(!voiceOn || !('speechSynthesis' in window)) return;
+  clearInterval(voiceWatcher);
   window.speechSynthesis.cancel();
   document.querySelectorAll('.card').forEach(function(c){ c.classList.remove('speaking'); });
 
   if(idx >= activeStory.s.length){
-    togVoice();
+    stopVoiceCompletely();
     if(on) tog();
     return;
   }
@@ -132,39 +141,45 @@ function speakStep(idx){
   if(secEl) secEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
   if(cardEl) cardEl.classList.add('speaking');
 
-  const utter = new SpeechSynthesisUtterance(activeStory.s.at(idx).t);
+  currentUtter = new SpeechSynthesisUtterance(activeStory.s.at(idx).t);
   const chosenVoice = getBestVoice();
-  if(chosenVoice) utter.voice = chosenVoice;
-  utter.lang = chosenVoice ? chosenVoice.lang : 'gu-IN';
-  utter.rate = 0.92;
+  if(chosenVoice) currentUtter.voice = chosenVoice;
+  currentUtter.lang = chosenVoice ? chosenVoice.lang : 'gu-IN';
+  currentUtter.rate = 0.92;
 
-  utter.onend = function(){
-    if(voiceOn) speakStep(idx + 1);
-  };
-  utter.onerror = function(){
-    // Desktop par voice support na hoy to fast skip thava ne badle normal scroll chalu rakhe
-    togVoice();
-    if(!on) tog();
-  };
-  window.speechSynthesis.speak(utter);
+  let started = false;
+  currentUtter.onstart = function(){ started = true; };
+  window.speechSynthesis.speak(currentUtter);
+
+  // Safe watcher: checks every 400ms if speech finished without error loop
+  let waitCount = 0;
+  voiceWatcher = setInterval(function(){
+    if(!voiceOn){ clearInterval(voiceWatcher); return; }
+    waitCount++;
+    if(started && !window.speechSynthesis.speaking){
+      clearInterval(voiceWatcher);
+      speakStep(idx + 1);
+    } else if(!started && waitCount > 6){
+      // Browser does not support speech: stop voice cleanly & let normal scroll continue
+      clearInterval(voiceWatcher);
+      stopVoiceCompletely();
+    }
+  }, 400);
 }
 
 function togVoice(){
-  voiceOn = !voiceOn;
-  const vb = document.getElementById('vbtn');
   if(voiceOn){
+    stopVoiceCompletely();
+  } else {
+    voiceOn = true;
+    const vb = document.getElementById('vbtn');
     vb.innerText = '🗣️ Voice ON';
     vb.classList.add('on');
     speakStep(voiceIdx);
-  } else {
-    vb.innerText = '🔇 Voice';
-    vb.classList.remove('on');
-    if('speechSynthesis' in window) window.speechSynthesis.cancel();
-    document.querySelectorAll('.card').forEach(function(c){ c.classList.remove('speaking'); });
   }
 }
 
-// Auto-Scroll Logic (Voice default OFF)
+// Auto-Scroll Logic
 let on=false,sp=0.6,tm;
 function run(){
   if(!on)return;
@@ -180,12 +195,13 @@ function tog(){
     run();
   } else {
     cancelAnimationFrame(tm);
-    if(voiceOn) togVoice();
+    stopVoiceCompletely();
+    if(musicOn) togMusic();
   }
 }
 function spd(v,b){sp=v;document.querySelectorAll('.sbtn').forEach(function(x){ x.classList.remove('on'); });b.classList.add('on');}
 
-window.onbeforeunload = function(){ if('speechSynthesis' in window) window.speechSynthesis.cancel(); };
+window.onbeforeunload = function(){ stopVoiceCompletely(); };
 
 const sid = new URLSearchParams(location.search).get('id');
 if(!sid || sid === "adalaj-ni-vav"){
