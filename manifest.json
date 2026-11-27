@@ -1,0 +1,20 @@
+{
+  "name": "કથાપ્રવાહ - ગુજરાતી વિઝ્યુઅલ સ્ટોરીઝ",
+  "short_name": "કથાપ્રવાહ",
+  "start_url": "/kathapravah/index.html",
+  "display": "standalone",
+  "background_color": "#060913",
+  "theme_color": "#ef4444",
+  "icons": [
+    {
+      "src": "Adalaj.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "Adalaj.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
