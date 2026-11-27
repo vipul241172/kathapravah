@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>કથાપ્રવાહ - સ્ટોરી</title>
+<link href="https://googleapis.com" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans Gujarati',sans-serif;background:#090d16;color:#fff}
+  .bg{position:fixed;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease-in-out;z-index:1}
+  .bg.active{opacity:1}
+  .shade{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:2}
+  .top{position:fixed;top:0;left:0;right:0;background:rgba(10,15,28,.9);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;z-index:999}
+  .top a{color:#fff;text-decoration:none;background:rgba(255,255,255,.12);padding:6px 12px;border-radius:8px;font-size:14px}
+  main{position:relative;z-index:10;padding:85px 16px 130px}
+  .sec{min-height:26vh;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+  .card{background:rgba(10,15,28,.65);backdrop-filter:blur(6px);border-radius:14px;padding:20px 24px;max-width:620px;width:100%;font-size:19px;line-height:1.8}
+  .bar{position:fixed;bottom:16px;left:0;right:0;margin:auto;width:fit-content;background:#0f172a;padding:8px 14px;border-radius:40px;display:flex;gap:8px;align-items:center;z-index:999;box-shadow:0 8px 25px rgba(0,0,0,.8)}
+  #pbtn{background:#ef4444;color:#fff;border:0;padding:7px 15px;border-radius:25px;font-weight:700;cursor:pointer;font-size:13px}
+  #mbtn{background:#1e293b;color:#38bdf8;border:0;padding:7px 12px;border-radius:25px;font-weight:700;cursor:pointer;font-size:13px}
+  .sbtn{background:transparent;color:#cbd5e1;border:0;padding:5px 9px;border-radius:15px;cursor:pointer;font-size:12px}
+  .sbtn.on{background:#475569;color:#fff}
+</style>
+</head>
+<body>
+<div class="top"><a href="index.html">← પાછા જાઓ</a><span id="cat" style="color:#f87171;font-weight:700"></span></div>
+<div id="bgs"></div><div class="shade"></div>
+<main id="box"><div class="sec"><div class="card" style="text-align:center">સ્ટોરી લોડ થઈ રહી છે...</div></div></main>
+
+<div class="bar">
+  <button id="pbtn" onclick="tog()">▶ Play</button>
+  <button id="mbtn" onclick="togMusic()">🔇 Music</button>
+  <button class="sbtn" onclick="spd(0.6,this)">Slow</button>
+  <button class="sbtn on" onclick="spd(1.2,this)">Med</button>
+  <button class="sbtn" onclick="spd(2.2,this)">Fast</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://gstatic.com";
+import { getFirestore, doc, getDoc } from "https://gstatic.com";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
+  authDomain: "kathapravah-763d0.firebaseapp.com",
+  projectId: "kathapravah-763d0",
+  storageBucket: "kathapravah-763d0.firebasestorage.app",
+  messagingSenderId: "771354906991",
+  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const fallback = {
+  cat:"ઇતિહાસ",title:"અડાલજની વાવ: પથ્થરોમાં કોતરાયેલી અમર પ્રેમ અને બલિદાનની ગાથા",s:[
+    {t:"૧૫મી સદીમાં ગુજરાતના અડાલજ ગામમાં રાજા વીરસિંહ વાઘેલાનું શાસન હતું. પ્રજાની પાણીની તકલીફ દૂર કરવા રાજાએ એક ભવ્ય વાવ બનાવવાનું કામ શરૂ કર્યું.",i:"Adalaj.jpg",c:"#2e1065"},
+    {t:"વાવનું કામ અધૂરું હતું ત્યારે પડોશી શાસક મહમૂદ બેગડાએ આક્રમણ કર્યું. આ યુદ્ધમાં રાજા વીરસિંહ વીરગતિ પામ્યા.",i:"Adalaj.jpg",c:"#172554"},
+    {t:"રાણી રૂડાબાઈએ શરત મૂકી કે જો બેગડો અધૂરી વાવ પૂર્ણ કરાવશે, તો જ તે લગ્ન કરશે.",i:"Adalaj.jpg",c:"#064e3b"},
+    {t:"વાવ તૈયાર થતાં જ રાણી રૂડાબાઈએ વાવની પ્રદક્ષિણા કરી અને પવિત્ર જળમાં સમાધિ લઈ પોતાનો પતિધર્મ નિભાવ્યો.",i:"Adalaj.jpg",c:"#7f1d1d"}
+  ]
+};
+
+async function init(){
+  const id = new URLSearchParams(location.search).get('id');
+  let st = fallback;
+  if(id && id !== "adalaj-ni-vav"){
+    const snap = await getDoc(doc(db, "stories", id));
+    if(snap.exists()){
+      const d = snap.data();
+      st = { cat: d.categoryName, title: d.title, s: d.s };
+    }
+  }
+  document.title = st.title + " - કથાપ્રવાહ";
+  document.getElementById('cat').innerText = st.cat;
+  const bgs=document.getElementById('bgs'),box=document.getElementById('box');
+  box.innerHTML=`<div class="sec"><div class="card" style="text-align:center"><h2 style="font-size:23px;margin-bottom:8px">${st.title}</h2><p style="font-size:13px;color:#cbd5e1">નીચે સ્ક્રોલ કરો અથવા Play દબાવો ↓</p></div></div>`;
+  st.s.forEach((x,i)=>{
+    bgs.innerHTML+=`<div id="b${i}" class="bg ${i===0?'active':''}" style="background-color:${x.c};background-image:url('${x.i}')"></div>`;
+    box.innerHTML+=`<div class="sec" data-i="${i}"><div class="card">${x.t}</div></div>`;
+  });
+  const ob=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting&&e.target.dataset.i!==undefined){
+      document.querySelectorAll('.bg').forEach(b=>b.classList.remove('active'));
+      document.getElementById('b'+e.target.dataset.i).classList.add('active');
+    }
+  }),{rootMargin:"-30% 0px -30% 0px"});
+  document.querySelectorAll('.sec').forEach(s=>ob.observe(s));
+}
+
+let audioCtx=null, musicTimer=null, musicOn=false;
+const notes=[261.63, 329.63, 392.00, 493.88, 392.00, 329.63];
+let noteIdx=0;
+function playSoftNote(){
+  if(!musicOn) return;
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+  osc.type = 'sine'; osc.frequency.value = notes[noteIdx++ % notes.length];
+  gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.06, audioCtx.currentTime + 0.5);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.8);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + 3);
+}
+window.togMusic = () => {
+  musicOn = !musicOn;
+  const mb = document.getElementById('mbtn');
+  if(musicOn){ mb.innerText = '🔊 Music'; playSoftNote(); musicTimer = setInterval(playSoftNote, 2400); }
+  else { mb.innerText = '🔇 Music'; clearInterval(musicTimer); }
+};
+let on=false,sp=1.2,tm;
+function run(){if(!on)return;window.scrollBy(0,sp);if(innerHeight+scrollY>=document.body.offsetHeight-2){tog();return;}tm=requestAnimationFrame(run);}
+window.tog = () => {on=!on;document.getElementById('pbtn').innerText=on?'⏸ Pause':'▶ Play';if(on){if(!musicOn)togMusic();run();}else cancelAnimationFrame(tm);};
+window.spd = (v,b) => {sp=v;document.querySelectorAll('.sbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');};
+
+init();
+</script>
+</body>
+</html>
+<!-- COMPLETE -->

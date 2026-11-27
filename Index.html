@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>કથાપ્રવાહ - ગુજરાતી વિઝ્યુઅલ સ્ટોરીઝ અને સમાચાર</title>
+<meta name="description" content="ગુજરાતીમાં ઇન્ટરેક્ટિવ સ્ક્રોલ-સ્ટોરીઝ, ઇતિહાસ, રહસ્યમય વાર્તાઓ, સમાચાર અને ટેકનોલોજી.">
+<link href="https://googleapis.com" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans Gujarati',sans-serif;background:#090d16;color:#fff;min-height:100vh;display:flex;flex-direction:column}
+  header{background:#111827;border-bottom:1px solid #1f2937;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+  .logo{font-size:24px;font-weight:700;color:#ef4444;text-decoration:none}
+  .adm-btn{background:#ef4444;color:#fff;text-decoration:none;padding:7px 14px;border-radius:20px;font-size:13px;font-weight:700}
+  .hero{text-align:center;padding:36px 16px 20px;max-width:800px;margin:0 auto}
+  .hero h1{font-size:30px;margin-bottom:8px}
+  .hero p{color:#94a3b8;font-size:15px}
+  .cats{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px}
+  .cbtn{background:#111827;color:#cbd5e1;border:1px solid #334155;padding:8px 16px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700}
+  .cbtn.on{background:#ef4444;color:#fff;border-color:#ef4444}
+  .grid{max-width:1050px;margin:20px auto;padding:0 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;width:100%;flex:1}
+  .card{background:#111827;border:1px solid #1f2937;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .thumb{height:190px;background:linear-gradient(135deg,#450a0a,#1e1b4b);position:relative}
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .badge{position:absolute;top:12px;left:12px;background:#ef4444;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px}
+  .body{padding:18px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+  .body h2{font-size:19px;line-height:1.4;margin-bottom:8px}
+  .body p{font-size:14px;color:#94a3b8;line-height:1.6;margin-bottom:16px}
+  .foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #1f2937;padding-top:12px}
+  .read-btn{background:#ef4444;color:#fff;text-decoration:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700}
+  footer{background:#05080f;border-top:1px solid #1f2937;text-align:center;padding:20px;color:#64748b;font-size:13px;margin-top:40px}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">કથાપ્રવાહ</a>
+  <a href="admin.html" class="adm-btn">+ Admin</a>
+</header>
+
+<section class="hero">
+  <h1>વાર્તાઓ જે તમારી સાથે <span style="color:#ef4444">ચાલે છે</span></h1>
+  <p>સ્ક્રોલ કરો અને દરેક ફકરા સાથે બદલાતા દ્રશ્યોનો અનોખો અનુભવ લો.</p>
+  <div class="cats">
+    <button class="cbtn on" onclick="flt('all',this)">બધી વાર્તાઓ</button>
+    <button class="cbtn" onclick="flt('news',this)">સમાચાર</button>
+    <button class="cbtn" onclick="flt('horror',this)">રહસ્યમય વાર્તાઓ</button>
+    <button class="cbtn" onclick="flt('history',this)">ઇતિહાસ</button>
+    <button class="cbtn" onclick="flt('tech',this)">ટેકનોલોજી</button>
+  </div>
+</section>
+
+<main class="grid" id="grid"><p style="color:#94a3b8">વાર્તાઓ લોડ થઈ રહી છે...</p></main>
+
+<footer>© 2026 કથાપ્રવાહ (KathaPravah). All Rights Reserved.</footer>
+
+<script type="module">
+import { initializeApp } from "https://gstatic.com";
+import { getFirestore, collection, getDocs, query, orderBy } from "https://gstatic.com";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
+  authDomain: "kathapravah-763d0.firebaseapp.com",
+  projectId: "kathapravah-763d0",
+  storageBucket: "kathapravah-763d0.firebasestorage.app",
+  messagingSenderId: "771354906991",
+  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const defaultStories = [{
+  id: "adalaj-ni-vav", category: "history", categoryName: "ઇતિહાસ",
+  title: "અડાલજની વાવ: પથ્થરોમાં કોતરાયેલી અમર પ્રેમ અને બલિદાનની ગાથા",
+  desc: "ગુજરાતના સ્થાપત્યનો અદભૂત નમૂનો ગણાતી અડાલજની વાવ પાછળ છુપાયેલો એક કરુણ ઇતિહાસ.",
+  image: "Adalaj.jpg", readTime: "3 મિનિટ"
+}];
+
+let allStories = [];
+
+async function load(){
+  try {
+    const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    const cloud = [];
+    snap.forEach(d => cloud.push({ id: d.id, ...d.data() }));
+    allStories = [...cloud, ...defaultStories];
+  } catch(e) {
+    allStories = defaultStories;
+  }
+  render('all');
+}
+
+function render(cat){
+  const list = cat === 'all' ? allStories : allStories.filter(x => x.category === cat);
+  document.getElementById('grid').innerHTML = list.map(s => `
+    <article class="card">
+      <div class="thumb">
+        ${s.image ? `<img src="${s.image}" onerror="this.style.display='none'">` : ''}
+        <span class="badge">${s.categoryName}</span>
+      </div>
+      <div class="body">
+        <div><h2>${s.title}</h2><p>${s.desc}</p></div>
+        <div class="foot">
+          <span style="font-size:12px;color:#94a3b8">⏱ ${s.readTime || '3 મિનિટ'}</span>
+          <a href="story.html?id=${s.id}" class="read-btn">સ્ક્રોલ-સ્ટોરી વાંચો →</a>
+        </div>
+      </div>
+    </article>
+  `).join('');
+}
+
+window.flt = (c, b) => {
+  document.querySelectorAll('.cbtn').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  render(c);
+};
+
+load();
+</script>
+</body>
+</html>
+<!-- COMPLETE -->
