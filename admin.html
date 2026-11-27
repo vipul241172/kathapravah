@@ -106,7 +106,7 @@ function add(){
 }
 
 function imgUp(inp){
-  const f = inp.files[0];
+  const f = inp.files.item(0);
   if(!f) return;
   const r = new FileReader();
   r.onload = function(e){
@@ -128,12 +128,14 @@ function imgUp(inp){
 }
 
 function saveStory(){
-  const c = document.getElementById('cat').value.split('|');
+  const parts = document.getElementById('cat').value.split('|');
+  const catSlug = parts.at(0);
+  const catName = parts.at(1);
   const t = document.getElementById('ttl').value.trim();
   const d = document.getElementById('dsc').value.trim();
   if(!t){ alert('શીર્ષક લખો!'); return; }
 
-  const s = [];
+  const s = new Array();
   document.querySelectorAll('.step').forEach(el => {
     const tx = el.querySelector('.txt').value.trim();
     const im = el.querySelector('.imgv').value || 'Adalaj.jpg';
@@ -142,16 +144,17 @@ function saveStory(){
 
   if(!s.length){ alert('ઓછામાં ઓછો ૧ પેરેગ્રાફ લખો!'); return; }
 
+  const firstStep = s.at(0);
   const btn = document.getElementById('pubBtn');
   btn.innerText = 'સેવ થઈ રહ્યું છે...';
   btn.disabled = true;
 
   db.collection("stories").add({
-    category: c[0],
-    categoryName: c[1],
+    category: catSlug,
+    categoryName: catName,
     title: t,
-    desc: d || s[0].t.slice(0, 80),
-    image: s[0].i,
+    desc: d || firstStep.t.slice(0, 80),
+    image: firstStep.i,
     readTime: Math.max(2, Math.ceil(s.length / 2)) + ' મિનિટ',
     s: s,
     createdAt: Date.now()
@@ -172,7 +175,7 @@ function show(){
       box.innerHTML = '<p style="color:#64748b;font-size:13px">હજુ કોઈ ઓનલાઈન સ્ટોરી નથી.</p>';
       return;
     }
-    const arr = [];
+    const arr = new Array();
     snap.forEach(doc => arr.push({ id: doc.id, ...doc.data() }));
     arr.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
     box.innerHTML = arr.map(x => `
