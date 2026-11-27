@@ -9,7 +9,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Noto Sans Gujarati',sans-serif;background:#090d16;color:#fff;padding-bottom:50px}
   #login{position:fixed;inset:0;background:#090d16;display:flex;align-items:center;justify-content:center;z-index:99}
-  .lbox{background:#111827;border:1px solid #1f2937;padding:28px;border-radius:16px;width:360px;text-align:center}
+  .lbox{background:#111827;border:1px solid #1f2937;padding:28px;border-radius:16px;width:340px;text-align:center}
   header{background:#111827;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1f2937}
   .wrap{max-width:850px;margin:24px auto;padding:0 16px}
   .card{background:#111827;border:1px solid #1f2937;border-radius:16px;padding:20px;margin-bottom:24px}
@@ -28,23 +28,19 @@
 <div id="login">
   <div class="lbox">
     <h2 style="color:#ef4444;margin-bottom:12px">કથાપ્રવાહ Admin</h2>
-    <input type="password" id="pw" placeholder="પાસવર્ડ (admin123)">
-    <input type="password" id="tk" placeholder="GitHub Token (ghp_...)" style="margin-top:10px">
+    <input type="password" id="pw" placeholder="પાસવર્ડ (admin123)" onkeypress="if(event.key==='Enter')chk()">
     <button type="button" class="btn red" style="width:100%;margin-top:12px" onclick="chk()">લોગિન કરો</button>
   </div>
 </div>
 
 <header>
   <b style="color:#ef4444;font-size:20px">કથાપ્રવાહ Admin</b>
-  <div style="display:flex;gap:8px">
-    <a href="index.html" class="btn dark">🌐 વેબસાઈટ જુઓ</a>
-    <button type="button" class="btn dark" style="color:#f87171" onclick="localStorage.removeItem('gh_tk');location.reload()">Logout</button>
-  </div>
+  <a href="index.html" class="btn dark">🌐 વેબસાઈટ જુઓ</a>
 </header>
 
 <div class="wrap">
   <div class="card">
-    <h3>✍️ નવી સ્ટોરી ઉમેરો</h3>
+    <h3>✍️ નવી સ્ટોરી બનાવો</h3>
     <label>કેટેગરી</label>
     <select id="cat">
       <option value="news|સમાચાર">સમાચાર</option>
@@ -63,30 +59,32 @@
       <button type="button" class="btn dark" onclick="add(1)">+ ૧ પેરેગ્રાફ ઉમેરો</button>
       <button type="button" class="btn dark" style="color:#38bdf8" onclick="add(10)">+ ૧૦ પેરેગ્રાફ એકસાથે ઉમેરો</button>
     </div>
-    <button type="button" id="pubBtn" class="btn green" onclick="saveStory()">🚀 ઓનલાઈન પબ્લિશ કરો</button>
+    <button type="button" class="btn green" onclick="generateStory()">🚀 સ્ટોરી તૈયાર કરો (Copy & Save)</button>
+  </div>
+
+  <div class="card" id="outBox" style="display:none;border-color:#10b981">
+    <h3 style="color:#10b981">✅ તમારી સ્ટોરી તૈયાર છે!</h3>
+    <p style="font-size:13px;color:#cbd5e1;margin:8px 0">નીચેનો કોડ આપમેળે <b>Copy</b> થઈ ગયો છે. બસ <b>"GitHub પર સેવ કરો"</b> બટન દબાવીને <code>stories.json</code> માં પેસ્ટ કરી દો:</p>
+    <textarea id="jsonOut" rows="4" readonly style="font-size:12px;color:#38bdf8"></textarea>
+    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+      <button type="button" class="btn dark" onclick="copyCode()">📋 ફરીથી Copy કરો</button>
+      <a href="https://github.com" target="_blank" class="btn red">🔗 GitHub પર stories.json ખોલો →</a>
+    </div>
   </div>
 
   <div class="card">
-    <h3>📚 પબ્લિશ થયેલી સ્ટોરીઝ</h3>
-    <div id="list">લોડ થઈ રહ્યું છે...</div>
+    <h3>📚 હાલની સ્ટોરીઝ</h3>
+    <div id="list"></div>
   </div>
 </div>
 
 <script>
-const GH_API = "https://github.com";
-
-if(localStorage.getItem('gh_tk')){
-  document.getElementById('login').style.display='none';
-}
-
+if(sessionStorage.getItem('ok')==='1') document.getElementById('login').style.display='none';
 function chk(){
-  const p = document.getElementById('pw').value.trim();
-  const t = document.getElementById('tk').value.trim();
-  if(p === 'admin123' && t.length > 10){
-    localStorage.setItem('gh_tk', t);
+  if(document.getElementById('pw').value.trim()==='admin123'){
+    sessionStorage.setItem('ok','1');
     document.getElementById('login').style.display='none';
-    show();
-  } else { alert('સાચો પાસવર્ડ (admin123) અને GitHub Token નાખો!'); }
+  } else { alert('ખોટો પાસવર્ડ!'); }
 }
 
 let n = 0;
@@ -133,33 +131,26 @@ function imgUp(inp){
   r.readAsDataURL(f);
 }
 
-function b64EncodeUnicode(str) {
-  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
-    return String.fromCharCode('0x' + p1);
-  }));
-}
-function b64DecodeUnicode(str) {
-  return decodeURIComponent(atob(str).split('').map(function(c) {
-    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-  }).join(''));
+let existingStories = new Array();
+fetch("stories.json?t=" + Date.now()).then(function(r){ return r.json(); }).then(function(arr){
+  if(Array.isArray(arr)) existingStories = arr;
+  renderList();
+}).catch(function(){ renderList(); });
+
+function renderList(){
+  const box = document.getElementById('list');
+  if(!existingStories.length){
+    box.innerHTML = '<p style="color:#64748b;font-size:13px">હજુ કોઈ સ્ટોરી નથી.</p>';
+    return;
+  }
+  box.innerHTML = existingStories.map(function(x, idx){
+    return '<div class="item"><div><b>' + x.title + '</b><br><small style="color:#94a3b8">' + x.categoryName + '</small></div>' +
+    '<div><a href="story.html?id=' + x.id + '" class="btn dark">જુઓ</a> ' +
+    '<button type="button" onclick="delStory(' + idx + ')" class="btn dark" style="color:#f87171">ડિલીટ</button></div></div>';
+  }).join('');
 }
 
-async function getStoriesFromGH(){
-  const tk = localStorage.getItem('gh_tk');
-  const res = await fetch(GH_API, {
-    cache: "no-store",
-    headers: {
-      "Authorization": "Bearer " + tk,
-      "Accept": "application/vnd.github+json"
-    }
-  });
-  const data = await res.json();
-  if(!res.ok) throw new Error(data.message || "Read failed");
-  const list = JSON.parse(b64DecodeUnicode(data.content.replace(/\n/g, '')));
-  return { list: list, sha: data.sha };
-}
-
-async function saveStory(){
+function generateStory(){
   const parts = document.getElementById('cat').value.split('|');
   const t = document.getElementById('ttl').value.trim();
   const d = document.getElementById('dsc').value.trim();
@@ -173,80 +164,46 @@ async function saveStory(){
   });
   if(!s.length){ alert('ઓછામાં ઓછો ૧ પેરેગ્રાફ લખો!'); return; }
 
-  const btn = document.getElementById('pubBtn');
-  btn.innerText = 'સેવ થઈ રહ્યું છે...';
-  btn.disabled = true;
-
-  try {
-    const current = await getStoriesFromGH();
-    current.list.unshift({
-      id: "st-" + Date.now(),
-      category: parts.at(0),
-      categoryName: parts.at(1),
-      title: t,
-      desc: d || s.at(0).t.slice(0, 80),
-      image: s.at(0).i,
-      readTime: Math.max(2, Math.ceil(s.length / 2)) + ' મિનિટ',
-      s: s
-    });
-
-    const putRes = await fetch(GH_API, {
-      method: "PUT",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem('gh_tk'),
-        "Accept": "application/vnd.github+json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: "Add story",
-        content: b64EncodeUnicode(JSON.stringify(current.list)),
-        sha: current.sha
-      })
-    });
-    const putData = await putRes.json();
-    if(!putRes.ok) throw new Error(putData.message || "Save failed");
-    alert('🎉 અભિનંદન! તમારી સ્ટોરી પબ્લિશ થઈ ગઈ છે (૧ મિનિટમાં વેબસાઈટ પર દેખાશે)!');
-    location.reload();
-  } catch(err) {
-    alert('Error: ' + err.message);
-    btn.innerText = '🚀 ઓનલાઈન પબ્લિશ કરો';
-    btn.disabled = false;
-  }
-}
-
-async function show(){
-  const box = document.getElementById('list');
-  if(!localStorage.getItem('gh_tk')) return;
-  try {
-    const current = await getStoriesFromGH();
-    if(!current.list.length){
-      box.innerHTML = '<p style="color:#64748b;font-size:13px">હજુ કોઈ સ્ટોરી નથી.</p>';
-      return;
-    }
-    box.innerHTML = current.list.map(function(x, idx){
-      return '<div class="item"><div><b>' + x.title + '</b><br><small style="color:#94a3b8">' + x.categoryName + '</small></div>' +
-      '<div><a href="story.html?id=' + x.id + '" class="btn dark">જુઓ</a> ' +
-      '<button type="button" onclick="del(' + idx + ')" class="btn dark" style="color:#f87171">ડિલીટ</button></div></div>';
-    }).join('');
-  } catch(e) {
-    box.innerHTML = '<p style="color:#f87171">Error: ' + e.message + '</p>';
-  }
-}
-
-async function del(idx){
-  if(!confirm('ડિલીટ કરવી છે?')) return;
-  const current = await getStoriesFromGH();
-  current.list.splice(idx, 1);
-  await fetch(GH_API, {
-    method: "PUT",
-    headers: { "Authorization": "Bearer " + localStorage.getItem('gh_tk'), "Accept": "application/vnd.github+json", "Content-Type": "application/json" },
-    body: JSON.stringify({ message: "Delete story", content: b64EncodeUnicode(JSON.stringify(current.list)), sha: current.sha })
+  const updated = existingStories.slice();
+  updated.unshift({
+    id: "st-" + Date.now(),
+    category: parts.at(0),
+    categoryName: parts.at(1),
+    title: t,
+    desc: d || s.at(0).t.slice(0, 80),
+    image: s.at(0).i,
+    readTime: Math.max(2, Math.ceil(s.length / 2)) + ' મિનિટ',
+    s: s
   });
-  show();
+
+  showOutput(updated);
+}
+
+function delStory(idx){
+  if(!confirm('આ સ્ટોરી ડિલીટ કરવા માટે નવો કોડ જનરેટ થશે, જેને stories.json માં પેસ્ટ કરવો પડશે. આગળ વધવું છે?')) return;
+  const updated = existingStories.slice();
+  updated.splice(idx, 1);
+  showOutput(updated);
+}
+
+function showOutput(arr){
+  const jsonStr = JSON.stringify(arr);
+  const out = document.getElementById('jsonOut');
+  out.value = jsonStr;
+  document.getElementById('outBox').style.display = 'block';
+  out.select();
+  navigator.clipboard.writeText(jsonStr).catch(function(){});
+  document.getElementById('outBox').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyCode(){
+  const out = document.getElementById('jsonOut');
+  out.select();
+  navigator.clipboard.writeText(out.value);
+  alert('કોડ કોપી થઈ ગયો છે! હવે GitHub પર stories.json માં પેસ્ટ કરો.');
 }
 
 add(2);
-show();
 </script>
 </body>
 </html>
