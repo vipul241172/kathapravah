@@ -3,27 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>કથાપ્રવાહ - સ્ટોરી</title>
+<title>સમયચક્ર - સ્ટોરી</title>
 <link href="https://googleapis.com" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Noto Sans Gujarati',sans-serif;background:#090d16;color:#fff}
   .bg{position:fixed;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease-in-out;z-index:1}
   .bg.active{opacity:1}
-  .shade{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:2}
+  .shade{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:2}
   .top{position:fixed;top:0;left:0;right:0;background:rgba(10,15,28,.85);backdrop-filter:blur(6px);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;z-index:999}
   .top a{color:#fff;text-decoration:none;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:8px;font-size:14px}
-  main{position:relative;z-index:10;padding:80px 18px 130px}
-  .sec{min-height:16vh;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+  main{position:relative;z-index:10;padding:80px 18px 140px}
+  .sec{min-height:18vh;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
   .card{
     background:transparent;padding:12px 16px;max-width:650px;width:100%;
     font-size:20px;font-weight:600;line-height:1.85;color:#ffffff;
     text-shadow: 0 2px 6px rgba(0,0,0,0.95), 0 0 18px rgba(0,0,0,0.9);
+    transition: transform 0.3s, color 0.3s;
   }
-  .bar{position:fixed;bottom:16px;left:0;right:0;margin:auto;width:fit-content;background:rgba(15,23,42,.92);backdrop-filter:blur(8px);padding:8px 14px;border-radius:40px;display:flex;gap:8px;align-items:center;z-index:999;box-shadow:0 8px 25px rgba(0,0,0,.8)}
-  #pbtn{background:#ef4444;color:#fff;border:0;padding:7px 15px;border-radius:25px;font-weight:700;cursor:pointer;font-size:13px}
-  #mbtn{background:#1e293b;color:#38bdf8;border:0;padding:7px 12px;border-radius:25px;font-weight:700;cursor:pointer;font-size:13px}
-  .sbtn{background:transparent;color:#cbd5e1;border:0;padding:5px 9px;border-radius:15px;cursor:pointer;font-size:12px}
+  .card.speaking{color:#fde047;transform:scale(1.02)}
+  .bar{position:fixed;bottom:16px;left:0;right:0;margin:auto;width:fit-content;background:rgba(15,23,42,.95);backdrop-filter:blur(8px);padding:8px 12px;border-radius:40px;display:flex;gap:6px;align-items:center;z-index:999;box-shadow:0 8px 25px rgba(0,0,0,.85);flex-wrap:wrap;justify-content:center}
+  #pbtn{background:#ef4444;color:#fff;border:0;padding:7px 14px;border-radius:25px;font-weight:700;cursor:pointer;font-size:13px}
+  #vbtn,#mbtn{background:#1e293b;color:#38bdf8;border:0;padding:7px 11px;border-radius:25px;font-weight:700;cursor:pointer;font-size:12px}
+  #vbtn.on{background:#10b981;color:#fff}
+  .sbtn{background:transparent;color:#cbd5e1;border:0;padding:5px 8px;border-radius:15px;cursor:pointer;font-size:11px}
   .sbtn.on{background:#475569;color:#fff}
 </style>
 </head>
@@ -34,8 +37,9 @@
 
 <div class="bar">
   <button id="pbtn" onclick="tog()">▶ Play</button>
+  <button id="vbtn" onclick="togVoice()">🔇 Voice</button>
   <button id="mbtn" onclick="togMusic()">🔇 Music</button>
-  <button class="sbtn  on" onclick="spd(0.6,this)">Slow</button>
+  <button class="sbtn on" onclick="spd(0.6,this)">Slow</button>
   <button class="sbtn" onclick="spd(1.2,this)">Med</button>
   <button class="sbtn" onclick="spd(2.2,this)">Fast</button>
 </div>
@@ -50,15 +54,18 @@ const fallback = {
   ]
 };
 
+let activeStory = fallback;
+
 function renderStory(st){
-  document.title = st.title + " - કથાપ્રવાહ";
+  activeStory = st;
+  document.title = st.title + " - સમયચક્ર";
   document.getElementById('cat').innerText = st.cat;
   const bgs=document.getElementById('bgs'),box=document.getElementById('box');
   bgs.innerHTML = '';
-  box.innerHTML = '<div class="sec" style="min-height:30vh"><div class="card" style="text-align:center"><h2 style="font-size:25px;margin-bottom:8px;font-weight:700">' + st.title + '</h2><p style="font-size:14px;color:#e2e8f0">નીચે સ્ક્રોલ કરો અથવા Play દબાવો ↓</p></div></div>';
+  box.innerHTML = '<div class="sec" style="min-height:28vh"><div class="card" style="text-align:center"><h2 style="font-size:25px;margin-bottom:8px;font-weight:700">' + st.title + '</h2><p style="font-size:14px;color:#e2e8f0">નીચે સ્ક્રોલ કરો અથવા Play દબાવો ↓</p></div></div>';
   st.s.forEach(function(x,i){
     bgs.innerHTML += '<div id="b' + i + '" class="bg ' + (i===0?'active':'') + '" style="background-color:' + (x.c||'#1e1b4b') + ';background-image:url(\'' + x.i + '\')"></div>';
-    box.innerHTML += '<div class="sec" data-i="' + i + '"><div class="card">' + x.t + '</div></div>';
+    box.innerHTML += '<div class="sec" id="sec-' + i + '" data-i="' + i + '"><div class="card" id="card-' + i + '">' + x.t + '</div></div>';
   });
   const ob=new IntersectionObserver(function(es){
     es.forEach(function(e){
@@ -72,6 +79,7 @@ function renderStory(st){
   document.querySelectorAll('.sec').forEach(function(s){ ob.observe(s); });
 }
 
+// Ambient Music
 let audioCtx=null, musicTimer=null, musicOn=false;
 const notes=[261.63, 329.63, 392.00, 493.88, 392.00, 329.63];
 let noteIdx=0;
@@ -81,7 +89,7 @@ function playSoftNote(){
   const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
   osc.type = 'sine'; osc.frequency.value = notes[noteIdx++ % notes.length];
   gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.06, audioCtx.currentTime + 0.5);
+  gain.gain.exponentialRampToValueAtTime(0.035, audioCtx.currentTime + 0.5);
   gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.8);
   osc.connect(gain); gain.connect(audioCtx.destination);
   osc.start(); osc.stop(audioCtx.currentTime + 3);
@@ -93,10 +101,75 @@ function togMusic(){
   else { mb.innerText = '🔇 Music'; clearInterval(musicTimer); }
 }
 
+// Gujarati Automatic Voiceover (Text-to-Speech)
+let voiceOn = false, voiceIdx = 0;
+function speakStep(idx){
+  if(!voiceOn || !('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  document.querySelectorAll('.card').forEach(function(c){ c.classList.remove('speaking'); });
+
+  if(idx >= activeStory.s.length){
+    togVoice();
+    if(on) tog();
+    return;
+  }
+
+  voiceIdx = idx;
+  const secEl = document.getElementById('sec-' + idx);
+  const cardEl = document.getElementById('card-' + idx);
+  if(secEl) secEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if(cardEl) cardEl.classList.add('speaking');
+
+  const utter = new SpeechSynthesisUtterance(activeStory.s.at(idx).t);
+  utter.lang = 'gu-IN';
+  utter.rate = 0.95;
+  utter.onend = function(){
+    if(voiceOn) speakStep(idx + 1);
+  };
+  utter.onerror = function(){
+    if(voiceOn) speakStep(idx + 1);
+  };
+  window.speechSynthesis.speak(utter);
+}
+
+function togVoice(){
+  voiceOn = !voiceOn;
+  const vb = document.getElementById('vbtn');
+  if(voiceOn){
+    vb.innerText = '🗣️ Voice ON';
+    vb.classList.add('on');
+    speakStep(voiceIdx);
+  } else {
+    vb.innerText = '🔇 Voice';
+    vb.classList.remove('on');
+    if('speechSynthesis' in window) window.speechSynthesis.cancel();
+    document.querySelectorAll('.card').forEach(function(c){ c.classList.remove('speaking'); });
+  }
+}
+
+// Auto-Scroll Logic
 let on=false,sp=0.6,tm;
-function run(){if(!on)return;window.scrollBy(0,sp);if(innerHeight+scrollY>=document.body.offsetHeight-2){tog();return;}tm=requestAnimationFrame(run);}
-function tog(){on=!on;document.getElementById('pbtn').innerText=on?'⏸ Pause':'▶ Play';if(on){if(!musicOn)togMusic();run();}else cancelAnimationFrame(tm);}
+function run(){
+  if(!on)return;
+  if(!voiceOn) window.scrollBy(0,sp);
+  if(innerHeight+scrollY>=document.body.offsetHeight-2 && !voiceOn){tog();return;}
+  tm=requestAnimationFrame(run);
+}
+function tog(){
+  on=!on;
+  document.getElementById('pbtn').innerText=on?'⏸ Pause':'▶ Play';
+  if(on){
+    if(!musicOn) togMusic();
+    if(!voiceOn) togVoice();
+    run();
+  } else {
+    cancelAnimationFrame(tm);
+    if(voiceOn) togVoice();
+  }
+}
 function spd(v,b){sp=v;document.querySelectorAll('.sbtn').forEach(function(x){ x.classList.remove('on'); });b.classList.add('on');}
+
+window.onbeforeunload = function(){ if('speechSynthesis' in window) window.speechSynthesis.cancel(); };
 
 const sid = new URLSearchParams(location.search).get('id');
 if(!sid || sid === "adalaj-ni-vav"){
