@@ -100,15 +100,8 @@ const sid = new URLSearchParams(location.search).get('id');
 if(!sid || sid === "adalaj-ni-vav"){
   renderStory(fallback);
 } else {
-  fetch("https://googleapis.com" + sid)
-    .then(r => r.json())
-    .then(doc => {
-      if(doc.fields && doc.fields.json){
-        const d = JSON.parse(doc.fields.json.stringValue);
-        renderStory({ cat: d.categoryName, title: d.title, s: d.s });
-      } else { renderStory(fallback); }
-    }).catch(() => renderStory(fallback));
-}
-</script>
-</body>
-</html>
+  fetch("stories.json?t=" + Date.now()).then(r => r.json()).then(cloud => {
+  const found = cloud.find(x => x.id === sid);
+  if(found){ renderStory({ cat: found.categoryName, title: found.title, s: found.s }); }
+  else { renderStory(fallback); }
+}).catch(() => renderStory(fallback));
