@@ -34,13 +34,13 @@
 </div>
 
 <header>
-  <b style="color:#ef4444;font-size:20px">કથાપ્રવાહ Cloud Admin</b>
+  <b style="color:#ef4444;font-size:20px">કથાપ્રવાહ Direct Admin</b>
   <a href="index.html" class="btn dark">🌐 વેબસાઈટ જુઓ</a>
 </header>
 
 <div class="wrap">
   <div class="card">
-    <h3>✍️ નવી સ્ટોરી ઉમેરો (Live Cloud)</h3>
+    <h3>✍️ નવી સ્ટોરી ઉમેરો</h3>
     <label>કેટેગરી</label>
     <select id="cat">
       <option value="news|સમાચાર">સમાચાર</option>
@@ -69,6 +69,8 @@
 </div>
 
 <script>
+const API_URL = "https://googleapis.com";
+
 if(sessionStorage.getItem('ok')==='1') document.getElementById('login').style.display='none';
 function chk(){
   if(document.getElementById('pw').value.trim()==='admin123'){
@@ -121,25 +123,7 @@ function imgUp(inp){
   r.readAsDataURL(f);
 }
 
-add(2);
-</script>
-
-<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
-  authDomain: "://firebaseapp.com",
-  projectId: "kathapravah-763d0",
-  storageBucket: "kathapravah-763d0.firebasestorage.app",
-  messagingSenderId: "771354906991",
-  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-function saveStory(){
+async function saveStory(){
   const parts = document.getElementById('cat').value.split('|');
   const catSlug = parts.at(0);
   const catName = parts.at(1);
@@ -167,49 +151,71 @@ function saveStory(){
     createdAt: Date.now()
   };
 
-  const totalSizeKB = Math.round(JSON.stringify(payload).length / 1024);
-  if(totalSizeKB > 950){
-    alert('ફોટાની કુલ સાઈઝ (' + totalSizeKB + ' KB) વધી ગઈ છે. કૃપા કરીને થોડા ઓછા પેરેગ્રાફ અથવા નાના ફોટા રાખો.');
+  const jsonStr = JSON.stringify(payload);
+  const kb = Math.round(jsonStr.length / 1024);
+  if(kb > 950){
+    alert('કુલ સાઈઝ (' + kb + ' KB) વધી ગઈ છે. કૃપા કરીને થોડા ઓછા પેરેગ્રાફ રાખો.');
     return;
   }
 
   const btn = document.getElementById('pubBtn');
-  btn.innerText = 'સેવ થઈ રહ્યું છે (' + totalSizeKB + ' KB)...';
+  btn.innerText = 'અપલોડ થઈ રહ્યું છે (' + kb + ' KB)...';
   btn.disabled = true;
 
-  db.collection("stories").add(payload).then(function(){
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fields: {
+          json: { stringValue: jsonStr },
+          createdAt: { integerValue: String(Date.now()) }
+        }
+      })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error ? data.error.message : "Upload failed");
     alert('🎉 અભિનંદન! તમારી સ્ટોરી ઓનલાઈન પબ્લિશ થઈ ગઈ!');
     location.reload();
-  }).catch(function(err){
+  } catch(err) {
     alert('Error: ' + err.message);
     btn.innerText = '🚀 ઓનલાઈન પબ્લિશ કરો';
     btn.disabled = false;
-  });
+  }
 }
 
-function show(){
+async function show(){
   const box = document.getElementById('list');
-  db.collection("stories").get().then(function(snap){
-    if(snap.empty){
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    if(!data.documents || !data.documents.length){
       box.innerHTML = '<p style="color:#64748b;font-size:13px">હજુ કોઈ ઓનલાઈન સ્ટોરી નથી.</p>';
       return;
     }
-    const arr = new Array();
-    snap.forEach(function(doc){ arr.push({ id: doc.id, ...doc.data() }); });
+    const arr = data.documents.map(function(doc){
+      const id = doc.name.split('/').pop();
+      const obj = JSON.parse(doc.fields.json.stringValue);
+      return { id: id, ...obj };
+    });
     arr.sort(function(a,b){ return (b.createdAt || 0) - (a.createdAt || 0); });
     box.innerHTML = arr.map(function(x){
-      return '<div class="item"><div><b>' + x.title + '</b><br><small style="color:#94a3b8">' + x.categoryName + '</small></div>' +
+      return '<div class="item"><div><b>' + x.title + '</b><br><small style="color:#94a3b8">' + x.categoryName + ' (' + x.s.length + ' પેરેગ્રાફ)</small></div>' +
       '<div><a href="story.html?id=' + x.id + '" class="btn dark">જુઓ</a> ' +
       '<button type="button" onclick="del(\'' + x.id + '\')" class="btn dark" style="color:#f87171">ડિલીટ</button></div></div>';
     }).join('');
-  });
+  } catch(e) {
+    box.innerHTML = '<p style="color:#f87171">Error: ' + e.message + '</p>';
+  }
 }
 
-function del(id){
+async function del(id){
   if(!confirm('ડિલીટ કરવી છે?')) return;
-  db.collection("stories").doc(id).delete().then(function(){ show(); });
+  await fetch(API_URL + "/" + id, { method: "DELETE" });
+  show();
 }
 
+add(2);
 show();
 </script>
 </body>
