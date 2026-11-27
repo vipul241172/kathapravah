@@ -50,26 +50,11 @@
   </div>
 </section>
 
-<main class="grid" id="grid"><p style="color:#94a3b8">વાર્તાઓ લોડ થઈ રહી છે...</p></main>
+<main class="grid" id="grid"></main>
 
 <footer>© 2026 કથાપ્રવાહ (KathaPravah). All Rights Reserved.</footer>
 
-<script type="module">
-import { initializeApp } from "https://gstatic.com";
-import { getFirestore, collection, getDocs, query, orderBy } from "https://gstatic.com";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
-  authDomain: "kathapravah-763d0.firebaseapp.com",
-  projectId: "kathapravah-763d0",
-  storageBucket: "kathapravah-763d0.firebasestorage.app",
-  messagingSenderId: "771354906991",
-  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
+<script>
 const defaultStories = [{
   id: "adalaj-ni-vav", category: "history", categoryName: "ઇતિહાસ",
   title: "અડાલજની વાવ: પથ્થરોમાં કોતરાયેલી અમર પ્રેમ અને બલિદાનની ગાથા",
@@ -77,24 +62,13 @@ const defaultStories = [{
   image: "Adalaj.jpg", readTime: "3 મિનિટ"
 }];
 
-let allStories = [];
+let allStories = [...defaultStories];
 
-async function load(){
-  try {
-    const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
-    const cloud = [];
-    snap.forEach(d => cloud.push({ id: d.id, ...d.data() }));
-    allStories = [...cloud, ...defaultStories];
-  } catch(e) {
-    allStories = defaultStories;
-  }
-  render('all');
-}
-
-function render(cat){
+function render(cat='all'){
   const list = cat === 'all' ? allStories : allStories.filter(x => x.category === cat);
-  document.getElementById('grid').innerHTML = list.map(s => `
+  const g = document.getElementById('grid');
+  if(!list.length){ g.innerHTML = '<p style="color:#94a3b8;text-align:center;grid-column:1/-1">આ કેટેગરીમાં હજુ કોઈ વાર્તા નથી.</p>'; return; }
+  g.innerHTML = list.map(s => `
     <article class="card">
       <div class="thumb">
         ${s.image ? `<img src="${s.image}" onerror="this.style.display='none'">` : ''}
@@ -111,13 +85,40 @@ function render(cat){
   `).join('');
 }
 
-window.flt = (c, b) => {
+function flt(c, b){
   document.querySelectorAll('.cbtn').forEach(x => x.classList.remove('on'));
   b.classList.add('on');
   render(c);
+}
+
+render('all');
+</script>
+
+<script type="module">
+import { initializeApp } from "https://gstatic.com";
+import { getFirestore, collection, getDocs } from "https://gstatic.com";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC6lOu5T86L8tbnA_DteoeV2LDAYIKPIAk",
+  authDomain: "://firebaseapp.com",
+  projectId: "kathapravah-763d0",
+  storageBucket: "kathapravah-763d0.firebasestorage.app",
+  messagingSenderId: "771354906991",
+  appId: "1:771354906991:web:8cebd37f226104ae33d89a"
 };
 
-load();
+try {
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const snap = await getDocs(collection(db, "stories"));
+  const cloud = [];
+  snap.forEach(d => cloud.push({ id: d.id, ...d.data() }));
+  cloud.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+  if(cloud.length){
+    allStories = [...cloud, ...defaultStories];
+    render('all');
+  }
+} catch(e) { console.log(e); }
 </script>
 </body>
 </html>
