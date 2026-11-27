@@ -101,14 +101,9 @@ function flt(c, b){
 
 render('all');
 
-fetch(API_URL).then(r => r.json()).then(data => {
-  if(data.documents && data.documents.length){
-    const cloud = data.documents.map(doc => ({ id: doc.name.split('/').pop(), ...JSON.parse(doc.fields.json.stringValue) }));
-    cloud.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+fetch("stories.json?t=" + Date.now()).then(r => r.json()).then(cloud => {
+  if(cloud && cloud.length){
     allStories = [...cloud, ...defaultStories];
     render('all');
   }
 }).catch(()=>{});
-</script>
-</body>
-</html>
