@@ -55,19 +55,21 @@ function renderStory(st){
   document.getElementById('cat').innerText = st.cat;
   const bgs=document.getElementById('bgs'),box=document.getElementById('box');
   bgs.innerHTML = '';
-  box.innerHTML = `<div class="sec" style="min-height:30vh"><div class="card" style="text-align:center"><h2 style="font-size:25px;margin-bottom:8px;font-weight:700">${st.title}</h2><p style="font-size:14px;color:#e2e8f0">નીચે સ્ક્રોલ કરો અથવા Play દબાવો ↓</p></div></div>`;
-  st.s.forEach((x,i)=>{
-    bgs.innerHTML += `<div id="b${i}" class="bg ${i===0?'active':''}" style="background-color:${x.c||'#1e1b4b'};background-image:url('${x.i}')"></div>`;
-    box.innerHTML += `<div class="sec" data-i="${i}"><div class="card">${x.t}</div></div>`;
+  box.innerHTML = '<div class="sec" style="min-height:30vh"><div class="card" style="text-align:center"><h2 style="font-size:25px;margin-bottom:8px;font-weight:700">' + st.title + '</h2><p style="font-size:14px;color:#e2e8f0">નીચે સ્ક્રોલ કરો અથવા Play દબાવો ↓</p></div></div>';
+  st.s.forEach(function(x,i){
+    bgs.innerHTML += '<div id="b' + i + '" class="bg ' + (i===0?'active':'') + '" style="background-color:' + (x.c||'#1e1b4b') + ';background-image:url(\'' + x.i + '\')"></div>';
+    box.innerHTML += '<div class="sec" data-i="' + i + '"><div class="card">' + x.t + '</div></div>';
   });
-  const ob=new IntersectionObserver(es=>es.forEach(e=>{
-    if(e.isIntersecting&&e.target.dataset.i!==undefined){
-      document.querySelectorAll('.bg').forEach(b=>b.classList.remove('active'));
-      const el = document.getElementById('b'+e.target.dataset.i);
-      if(el) el.classList.add('active');
-    }
-  }),{rootMargin:"-35% 0px -35% 0px"});
-  document.querySelectorAll('.sec').forEach(s=>ob.observe(s));
+  const ob=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting && e.target.dataset.i !== undefined){
+        document.querySelectorAll('.bg').forEach(function(b){ b.classList.remove('active'); });
+        const el = document.getElementById('b' + e.target.dataset.i);
+        if(el) el.classList.add('active');
+      }
+    });
+  },{rootMargin:"-35% 0px -35% 0px"});
+  document.querySelectorAll('.sec').forEach(function(s){ ob.observe(s); });
 }
 
 let audioCtx=null, musicTimer=null, musicOn=false;
@@ -94,14 +96,21 @@ function togMusic(){
 let on=false,sp=1.2,tm;
 function run(){if(!on)return;window.scrollBy(0,sp);if(innerHeight+scrollY>=document.body.offsetHeight-2){tog();return;}tm=requestAnimationFrame(run);}
 function tog(){on=!on;document.getElementById('pbtn').innerText=on?'⏸ Pause':'▶ Play';if(on){if(!musicOn)togMusic();run();}else cancelAnimationFrame(tm);}
-function spd(v,b){sp=v;document.querySelectorAll('.sbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');}
+function spd(v,b){sp=v;document.querySelectorAll('.sbtn').forEach(function(x){ x.classList.remove('on'); });b.classList.add('on');}
 
 const sid = new URLSearchParams(location.search).get('id');
 if(!sid || sid === "adalaj-ni-vav"){
   renderStory(fallback);
 } else {
-  fetch("stories.json?t=" + Date.now()).then(r => r.json()).then(cloud => {
-  const found = cloud.find(x => x.id === sid);
-  if(found){ renderStory({ cat: found.categoryName, title: found.title, s: found.s }); }
-  else { renderStory(fallback); }
-}).catch(() => renderStory(fallback));
+  fetch("stories.json?t=" + Date.now()).then(function(r){ return r.json(); }).then(function(cloud){
+    const found = Array.isArray(cloud) ? cloud.find(function(x){ return x.id === sid; }) : null;
+    if(found){
+      renderStory({ cat: found.categoryName, title: found.title, s: found.s });
+    } else {
+      renderStory(fallback);
+    }
+  }).catch(function(){ renderStory(fallback); });
+}
+</script>
+</body>
+</html>
