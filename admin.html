@@ -107,11 +107,11 @@ function imgUp(inp){
     const im = new Image();
     im.onload = function(){
       const c = document.createElement('canvas');
-      const s = Math.min(1, 550 / im.width);
+      const s = Math.min(1, 450 / im.width);
       c.width = im.width * s;
       c.height = im.height * s;
       c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
-      const u = c.toDataURL('image/jpeg', 0.5);
+      const u = c.toDataURL('image/jpeg', 0.45);
       const row = inp.closest('.row');
       row.querySelector('.imgv').value = u;
       row.querySelector('.prev').src = u;
@@ -156,21 +156,28 @@ function saveStory(){
 
   if(!s.length){ alert('ઓછામાં ઓછો ૧ પેરેગ્રાફ લખો!'); return; }
 
-  const firstStep = s.at(0);
-  const btn = document.getElementById('pubBtn');
-  btn.innerText = 'સેવ થઈ રહ્યું છે...';
-  btn.disabled = true;
-
-  db.collection("stories").add({
+  const payload = {
     category: catSlug,
     categoryName: catName,
     title: t,
-    desc: d || firstStep.t.slice(0, 80),
-    image: firstStep.i,
+    desc: d || s.at(0).t.slice(0, 80),
+    image: s.at(0).i,
     readTime: Math.max(2, Math.ceil(s.length / 2)) + ' મિનિટ',
     s: s,
     createdAt: Date.now()
-  }).then(function(){
+  };
+
+  const totalSizeKB = Math.round(JSON.stringify(payload).length / 1024);
+  if(totalSizeKB > 950){
+    alert('ફોટાની કુલ સાઈઝ (' + totalSizeKB + ' KB) વધી ગઈ છે. કૃપા કરીને થોડા ઓછા પેરેગ્રાફ અથવા નાના ફોટા રાખો.');
+    return;
+  }
+
+  const btn = document.getElementById('pubBtn');
+  btn.innerText = 'સેવ થઈ રહ્યું છે (' + totalSizeKB + ' KB)...';
+  btn.disabled = true;
+
+  db.collection("stories").add(payload).then(function(){
     alert('🎉 અભિનંદન! તમારી સ્ટોરી ઓનલાઈન પબ્લિશ થઈ ગઈ!');
     location.reload();
   }).catch(function(err){
