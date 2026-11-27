@@ -20,7 +20,7 @@
   .prev{width:75px;height:52px;object-fit:cover;border-radius:6px;background:#1e293b}
   .btn{border:0;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;font-size:13px}
   .red{background:#ef4444;color:#fff} .dark{background:#1e293b;color:#fff} .green{background:#10b981;color:#fff;width:100%;margin-top:16px;font-size:15px;padding:14px}
-  .item{display:flex;justify-content:space-between;align-items:center;background:#1e293b;padding:12px;border-radius:10px;margin-top:10px}
+  .item{display:flex;justify-content:space-between;align-items:center;background:#1e293b;padding:12px;border-radius:10px;margin-top:10px;gap:10px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -40,7 +40,10 @@
 
 <div class="wrap">
   <div class="card">
-    <h3>✍️ નવી સ્ટોરી બનાવો</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3 id="fh">✍️ નવી સ્ટોરી બનાવો</h3>
+      <button type="button" id="ceb" class="btn dark" style="display:none;color:#f87171" onclick="rst()">✕ રદ કરો</button>
+    </div>
     <label>કેટેગરી</label>
     <select id="cat">
       <option value="news|સમાચાર">સમાચાર</option>
@@ -52,29 +55,26 @@
     <input type="text" id="ttl" placeholder="શીર્ષક લખો...">
     <label>ટૂંકું વર્ણન</label>
     <input type="text" id="dsc" placeholder="હોમપેજ માટે ૨ લાઈન...">
-    
     <div id="steps"></div>
-    
     <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-      <button type="button" class="btn dark" onclick="add(1)">+ ૧ પેરેગ્રાફ ઉમેરો</button>
-      <button type="button" class="btn dark" style="color:#38bdf8" onclick="add(10)">+ ૧૦ પેરેગ્રાફ એકસાથે ઉમેરો</button>
+      <button type="button" class="btn dark" onclick="add(1)">+ ૧ પેરેગ્રાફ</button>
+      <button type="button" class="btn dark" style="color:#38bdf8" onclick="add(10)">+ ૧૦ પેરેગ્રાફ</button>
     </div>
-    <button type="button" class="btn green" onclick="generateStory()">🚀 સ્ટોરી તૈયાર કરો (Copy & Save)</button>
+    <button type="button" id="pb" class="btn green" onclick="gen()">🚀 સ્ટોરી તૈયાર કરો (Copy & Save)</button>
   </div>
 
-  <div class="card" id="outBox" style="display:none;border-color:#10b981">
-    <h3 style="color:#10b981">✅ તમારી સ્ટોરી તૈયાર છે!</h3>
-    <p style="font-size:13px;color:#cbd5e1;margin:8px 0">નીચેનો કોડ આપમેળે <b>Copy</b> થઈ ગયો છે. બસ <b>"GitHub પર સેવ કરો"</b> બટન દબાવીને <code>stories.json</code> માં પેસ્ટ કરી દો:</p>
-    <textarea id="jsonOut" rows="4" readonly style="font-size:12px;color:#38bdf8"></textarea>
-    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-      <button type="button" class="btn dark" onclick="copyCode()">📋 ફરીથી Copy કરો</button>
+  <div class="card" id="ob" style="display:none;border-color:#10b981">
+    <h3 style="color:#10b981">✅ કોડ કોપી થઈ ગયો છે!</h3>
+    <textarea id="jo" rows="3" readonly style="font-size:12px;color:#38bdf8;margin-top:8px"></textarea>
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+      <button type="button" class="btn dark" onclick="cp()">📋 ફરી Copy કરો</button>
       <a href="https://github.com" target="_blank" class="btn red">🔗 GitHub પર stories.json ખોલો →</a>
     </div>
   </div>
 
   <div class="card">
-    <h3>📚 હાલની સ્ટોરીઝ</h3>
-    <div id="list"></div>
+    <h3>📚 હાલની સ્ટોરીઝ (Edit / Delete)</h3>
+    <div id="list">લોડ થઈ રહ્યું છે...</div>
   </div>
 </div>
 
@@ -84,122 +84,98 @@ function chk(){
   if(document.getElementById('pw').value.trim()==='admin123'){
     sessionStorage.setItem('ok','1');
     document.getElementById('login').style.display='none';
-  } else { alert('ખોટો પાસવર્ડ!'); }
+  } else alert('ખોટો પાસવર્ડ!');
 }
 
-let n = 0;
-function add(count){
-  const total = count || 1;
-  for(let k=0; k<total; k++){
+let n=0, ei=-1, ex=new Array();
+
+function add(c, pt, pi){
+  for(let k=0; k<(c||1); k++){
     n++;
-    const d = document.createElement('div');
-    d.className = 'step';
-    d.innerHTML =
-      '<div style="display:flex;justify-content:space-between">' +
-        '<b style="color:#f87171;font-size:13px">પેરેગ્રાફ #' + n + '</b>' +
-        '<button type="button" onclick="this.parentElement.parentElement.remove()" style="color:#f87171;background:none;border:0;cursor:pointer">કાઢો</button>' +
-      '</div>' +
-      '<textarea rows="2" class="txt" placeholder="ગુજરાતી લખાણ..." style="margin-top:6px"></textarea>' +
-      '<div class="row">' +
-        '<input type="file" accept="image/*" onchange="imgUp(this)">' +
-        '<input type="hidden" class="imgv">' +
-        '<img class="prev" src="">' +
-      '</div>';
+    const d=document.createElement('div');
+    d.className='step';
+    d.innerHTML='<div style="display:flex;justify-content:space-between"><b style="color:#f87171;font-size:13px">પેરેગ્રાફ #'+n+'</b><button type="button" onclick="this.parentElement.parentElement.remove()" style="color:#f87171;background:none;border:0;cursor:pointer">કાઢો</button></div><textarea rows="2" class="txt" placeholder="ગુજરાતી લખાણ..." style="margin-top:6px">'+(pt||'')+'</textarea><div class="row"><input type="file" accept="image/*" onchange="up(this)"><input type="hidden" class="imgv" value="'+(pi||'')+'"><img class="prev" src="'+(pi||'')+'"></div>';
     document.getElementById('steps').appendChild(d);
   }
 }
 
-function imgUp(inp){
-  const f = inp.files.item(0);
-  if(!f) return;
-  const r = new FileReader();
-  r.onload = function(e){
-    const im = new Image();
-    im.onload = function(){
-      const c = document.createElement('canvas');
-      const s = Math.min(1, 650 / im.width);
-      c.width = im.width * s;
-      c.height = im.height * s;
-      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
-      const u = c.toDataURL('image/jpeg', 0.6);
-      const row = inp.closest('.row');
-      row.querySelector('.imgv').value = u;
-      row.querySelector('.prev').src = u;
+function up(inp){
+  const f=inp.files.item(0); if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const im=new Image();
+    im.onload=()=>{
+      const c=document.createElement('canvas'), s=Math.min(1,650/im.width);
+      c.width=im.width*s; c.height=im.height*s;
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      const u=c.toDataURL('image/jpeg',0.6), row=inp.closest('.row');
+      row.querySelector('.imgv').value=u; row.querySelector('.prev').src=u;
     };
-    im.src = e.target.result;
+    im.src=e.target.result;
   };
   r.readAsDataURL(f);
 }
 
-let existingStories = new Array();
-fetch("stories.json?t=" + Date.now()).then(function(r){ return r.json(); }).then(function(arr){
-  if(Array.isArray(arr)) existingStories = arr;
-  renderList();
-}).catch(function(){ renderList(); });
+fetch("stories.json?t="+Date.now()).then(r=>r.json()).then(a=>{ if(Array.isArray(a)) ex=a; show(); }).catch(()=>show());
 
-function renderList(){
-  const box = document.getElementById('list');
-  if(!existingStories.length){
-    box.innerHTML = '<p style="color:#64748b;font-size:13px">હજુ કોઈ સ્ટોરી નથી.</p>';
-    return;
-  }
-  box.innerHTML = existingStories.map(function(x, idx){
-    return '<div class="item"><div><b>' + x.title + '</b><br><small style="color:#94a3b8">' + x.categoryName + '</small></div>' +
-    '<div><a href="story.html?id=' + x.id + '" class="btn dark">જુઓ</a> ' +
-    '<button type="button" onclick="delStory(' + idx + ')" class="btn dark" style="color:#f87171">ડિલીટ</button></div></div>';
-  }).join('');
+function show(){
+  const b=document.getElementById('list');
+  if(!ex.length){ b.innerHTML='<p style="color:#64748b;font-size:13px">હજુ કોઈ સ્ટોરી નથી.</p>'; return; }
+  b.innerHTML=ex.map((x,i)=>'<div class="item"><div><b>'+x.title+'</b><br><small style="color:#94a3b8">'+x.categoryName+' • '+(x.s?x.s.length:0)+' પેરેગ્રાફ</small></div><div style="display:flex;gap:6px"><a href="story.html?id='+x.id+'" class="btn dark">જુઓ</a><button type="button" onclick="ed('+i+')" class="btn dark" style="color:#38bdf8">✏️ Edit</button><button type="button" onclick="dl('+i+')" class="btn dark" style="color:#f87171">ડિલીટ</button></div></div>').join('');
 }
 
-function generateStory(){
-  const parts = document.getElementById('cat').value.split('|');
-  const t = document.getElementById('ttl').value.trim();
-  const d = document.getElementById('dsc').value.trim();
-  if(!t){ alert('શીર્ષક લખો!'); return; }
+function ed(i){
+  const st=ex.at(i); if(!st)return;
+  ei=i;
+  document.getElementById('fh').innerText='✏️ સ્ટોરી એડિટ કરો';
+  document.getElementById('ceb').style.display='inline-block';
+  document.getElementById('pb').innerText='💾 ફેરફાર સેવ કરો (Copy & Save)';
+  document.getElementById('cat').value=st.category+'|'+st.categoryName;
+  document.getElementById('ttl').value=st.title;
+  document.getElementById('dsc').value=st.desc||'';
+  document.getElementById('steps').innerHTML=''; n=0;
+  if(st.s&&st.s.length) st.s.forEach(x=>add(1,x.t,x.i)); else add(1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
-  const s = new Array();
-  document.querySelectorAll('.step').forEach(function(el){
-    const tx = el.querySelector('.txt').value.trim();
-    const im = el.querySelector('.imgv').value || 'Adalaj.jpg';
-    if(tx) s.push({ t: tx, i: im, c: '#1e1b4b' });
+function rst(){
+  ei=-1;
+  document.getElementById('fh').innerText='✍️ નવી સ્ટોરી બનાવો';
+  document.getElementById('ceb').style.display='none';
+  document.getElementById('pb').innerText='🚀 સ્ટોરી તૈયાર કરો (Copy & Save)';
+  document.getElementById('ttl').value=''; document.getElementById('dsc').value='';
+  document.getElementById('steps').innerHTML=''; n=0; add(2);
+}
+
+function gen(){
+  const p=document.getElementById('cat').value.split('|'), t=document.getElementById('ttl').value.trim(), d=document.getElementById('dsc').value.trim();
+  if(!t)return alert('શીર્ષક લખો!');
+  const s=new Array();
+  document.querySelectorAll('.step').forEach(el=>{
+    const tx=el.querySelector('.txt').value.trim(), im=el.querySelector('.imgv').value||'Adalaj.jpg';
+    if(tx) s.push({t:tx,i:im,c:'#1e1b4b'});
   });
-  if(!s.length){ alert('ઓછામાં ઓછો ૧ પેરેગ્રાફ લખો!'); return; }
-
-  const updated = existingStories.slice();
-  updated.unshift({
-    id: "st-" + Date.now(),
-    category: parts.at(0),
-    categoryName: parts.at(1),
-    title: t,
-    desc: d || s.at(0).t.slice(0, 80),
-    image: s.at(0).i,
-    readTime: Math.max(2, Math.ceil(s.length / 2)) + ' મિનિટ',
-    s: s
-  });
-
-  showOutput(updated);
+  if(!s.length)return alert('ઓછામાં ઓછો ૧ પેરેગ્રાફ લખો!');
+  const upArr=ex.slice();
+  const obj={id:ei>=0?ex.at(ei).id:('st-'+Date.now()),category:p.at(0),categoryName:p.at(1),title:t,desc:d||s.at(0).t.slice(0,80),image:s.at(0).i,readTime:Math.max(2,Math.ceil(s.length/2))+' મિનિટ',s:s};
+  if(ei>=0) upArr.splice(ei,1,obj); else upArr.unshift(obj);
+  out(upArr);
 }
 
-function delStory(idx){
-  if(!confirm('આ સ્ટોરી ડિલીટ કરવા માટે નવો કોડ જનરેટ થશે, જેને stories.json માં પેસ્ટ કરવો પડશે. આગળ વધવું છે?')) return;
-  const updated = existingStories.slice();
-  updated.splice(idx, 1);
-  showOutput(updated);
+function dl(i){
+  if(!confirm('આ સ્ટોરી ડિલીટ કરવા નવો કોડ બનશે. આગળ વધવું છે?'))return;
+  const upArr=ex.slice(); upArr.splice(i,1); out(upArr);
 }
 
-function showOutput(arr){
-  const jsonStr = JSON.stringify(arr);
-  const out = document.getElementById('jsonOut');
-  out.value = jsonStr;
-  document.getElementById('outBox').style.display = 'block';
-  out.select();
-  navigator.clipboard.writeText(jsonStr).catch(function(){});
-  document.getElementById('outBox').scrollIntoView({ behavior: 'smooth' });
+function out(arr){
+  const js=JSON.stringify(arr), o=document.getElementById('jo');
+  o.value=js; document.getElementById('ob').style.display='block';
+  o.select(); navigator.clipboard.writeText(js).catch(()=>{});
+  document.getElementById('ob').scrollIntoView({behavior:'smooth'});
 }
 
-function copyCode(){
-  const out = document.getElementById('jsonOut');
-  out.select();
-  navigator.clipboard.writeText(out.value);
+function cp(){
+  const o=document.getElementById('jo'); o.select(); navigator.clipboard.writeText(o.value);
   alert('કોડ કોપી થઈ ગયો છે! હવે GitHub પર stories.json માં પેસ્ટ કરો.');
 }
 
@@ -207,3 +183,4 @@ add(2);
 </script>
 </body>
 </html>
+<!-- COMPLETE -->
