@@ -135,23 +135,25 @@ function loadLiveScores(){
 
 function renderMatches(matches){
   const box = document.getElementById('liveContainer');
-  box.innerHTML = matches.slice(0, 5).map(function(m){
-    const sc = Array.isArray(m.score) ? m.score : [];
-    const tm = Array.isArray(m.teams) ? m.teams : ['Team A', 'Team B'];
-    const s1 = sc.length > 0 ? (sc[0].r + "/" + sc[0].w + " (" + sc[0].o + " Ov)") : "Yet to bat";
-    const s2 = sc.length > 1 ? (sc[1].r + "/" + sc[1].w + " (" + sc[1].o + " Ov)") : "Yet to bat";
+  // Live athva Recent matches filter karo
+  const list = matches.filter(m => m.ms === "live" || m.ms === "result" || m.ms === "fixture").slice(0, 6);
+  if(!list.length){
+    box.innerHTML = '<div class="match-box" style="text-align:center;padding:24px"><p style="color:#fde047;font-weight:700">🏏 હાલમાં કોઈ મેચ ઉપલબ્ધ નથી.</p></div>';
+    return;
+  }
+  box.innerHTML = list.map(function(m){
+    const badge = m.ms === "live" ? '<span style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:8px;font-size:10px;margin-right:6px">LIVE</span>' : '';
     return '<div class="match-box">' +
-      '<small style="color:#a7f3d0">' + (m.matchType || 'MATCH').toUpperCase() + ' • ' + (m.name || '') + '</small>' +
+      '<small style="color:#a7f3d0">' + badge + (m.matchType || 'MATCH').toUpperCase() + ' • ' + (m.series || '') + '</small>' +
       '<div class="teams">' +
-        '<div class="team"><h3>' + (tm[0] || 'Team A') + '</h3><div class="score">' + s1 + '</div></div>' +
+        '<div class="team"><h3>' + (m.t1 || 'Team A') + '</h3><div class="score">' + (m.t1s || 'Yet to bat') + '</div></div>' +
         '<div style="font-weight:800;color:#ef4444">VS</div>' +
-        '<div class="team" style="text-align:right"><h3>' + (tm[1] || 'Team B') + '</h3><div class="score">' + s2 + '</div></div>' +
+        '<div class="team" style="text-align:right"><h3>' + (m.t2 || 'Team B') + '</h3><div class="score">' + (m.t2s || 'Yet to bat') + '</div></div>' +
       '</div>' +
       '<div class="status-txt">🔥 ' + (m.status || '') + '</div>' +
     '</div>';
   }).join('');
 }
-
 loadLiveScores();
 </script>
 </body>
