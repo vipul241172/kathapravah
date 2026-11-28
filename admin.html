@@ -20,7 +20,7 @@
   .prev{width:110px;height:72px;object-fit:cover;border-radius:8px;background:#1e293b;border:1px solid #334155}
   .btn{border:0;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;font-size:13px;display:inline-block}
   .red{background:#ef4444;color:#fff} .dark{background:#1e293b;color:#fff} .green{background:#10b981;color:#fff;width:100%;margin-top:16px;font-size:15px;padding:14px}
-  .blue{background:#3b82f6;color:#fff}
+  .item{display:flex;justify-content:space-between;align-items:center;background:#1e293b;padding:12px;border-radius:10px;margin-top:10px;gap:10px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -34,13 +34,19 @@
 </div>
 
 <header>
-  <b style="color:#ef4444;font-size:20px">⏳ સમયચક્ર Admin (Single Image Mode)</b>
-  <a href="index.html" class="btn dark">🌐 વેબસાઈટ જુઓ</a>
+  <b style="color:#ef4444;font-size:20px">⏳ સમયચક્ર Admin</b>
+  <div style="display:flex;gap:8px">
+    <a href="https://github.com" target="_blank" class="btn dark" style="color:#38bdf8">📤 images ફોલ્ડરમાં ફોટો Upload કરો</a>
+    <a href="index.html" class="btn dark">🌐 વેબસાઈટ જુઓ</a>
+  </div>
 </header>
 
 <div class="wrap">
   <div class="card">
-    <h3>✍️ નવી સ્ટોરી બનાવો</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3 id="fh">✍️ નવી સ્ટોરી બનાવો</h3>
+      <button type="button" id="ceb" class="btn dark" style="display:none;color:#f87171" onclick="rst()">✕ રદ કરો</button>
+    </div>
     <label>કેટેગરી</label>
     <select id="cat">
       <option value="news|સમાચાર">સમાચાર</option>
@@ -55,10 +61,9 @@
     <label>ટૂંકું વર્ણન</label>
     <input type="text" id="dsc" placeholder="હોમપેજ માટે ૨ લાઈન...">
 
-    <label style="color:#38bdf8;font-weight:700">🖼️ સ્ટોરીનો મુખ્ય ફોટો (આખી સ્ટોરીમાં આ એક જ ફોટો દેખાશે)</label>
+    <label style="color:#38bdf8;font-weight:700">🖼️ ફોટોનું નામ લખો (જે તમે images ફોલ્ડરમાં Upload કર્યો છે)</label>
     <div class="row" style="background:#0f172a;padding:12px;border-radius:10px;border:1px solid #334155">
-      <input type="file" accept="image/*" onchange="upMainImg(this)">
-      <input type="hidden" id="mainImg">
+      <input type="text" id="mainImg" placeholder="દા.ત. images/story1.jpg" oninput="document.getElementById('mainPrev').src=this.value">
       <img id="mainPrev" class="prev" src="">
     </div>
 
@@ -68,24 +73,20 @@
       <button type="button" class="btn dark" onclick="add(1)">+ ૧ પેરેગ્રાફ</button>
       <button type="button" class="btn dark" style="color:#38bdf8" onclick="add(10)">+ ૧૦ પેરેગ્રાફ</button>
     </div>
-    <button type="button" class="btn green" onclick="gen()">🚀 સ્ટોરી તૈયાર કરો</button>
+    <button type="button" id="pb" class="btn green" onclick="gen()">🚀 સ્ટોરી તૈયાર કરો (Copy & Save)</button>
   </div>
 
   <div class="card" id="ob" style="display:none;border-color:#10b981">
-    <h3 style="color:#10b981">✅ સ્ટોરી તૈયાર છે!</h3>
-    
-    <div style="background:#0f172a;padding:14px;border-radius:10px;margin-top:12px">
-      <b style="color:#38bdf8">પગલું ૧:</b> સ્ટોરી ફાઈલ (<code id="fname"></code>) ડાઉનલોડ કરીને GitHub પર Upload કરો:<br><br>
-      <button type="button" class="btn blue" onclick="dlFile()">⬇️ સ્ટોરી ફાઈલ ડાઉનલોડ કરો</button>
-      <a href="https://github.com" target="_blank" class="btn dark">📤 GitHub પર Upload કરો →</a>
-    </div>
+    <h3 style="color:#10b981">✅ કોડ કોપી થઈ ગયો છે! (ફક્ત <span id="kbSize"></span> KB)</h3>
+    <p style="font-size:13px;color:#cbd5e1;margin-top:6px">નીચેનું લાલ બટન દબાવીને <code>stories.json</code> માં પેસ્ટ કરી દો:</p>
+    <textarea id="jo" rows="3" readonly style="font-size:12px;color:#38bdf8;margin-top:8px"></textarea><br><br>
+    <button type="button" class="btn dark" onclick="cp()">📋 ફરી Copy કરો</button>
+    <a href="https://github.com" target="_blank" class="btn red">🔗 GitHub પર stories.json ખોલો →</a>
+  </div>
 
-    <div style="background:#0f172a;padding:14px;border-radius:10px;margin-top:12px">
-      <b style="color:#fde047">પગલું ૨:</b> <code style="color:#fff">stories.json</code> માટે નીચેનો કોડ Copy કરીને પેસ્ટ કરો:<br>
-      <textarea id="jo" rows="3" readonly style="font-size:12px;color:#38bdf8;margin-top:8px"></textarea><br><br>
-      <button type="button" class="btn green" style="margin-top:0;width:auto;padding:10px 16px" onclick="cp()">📋 કોડ Copy કરો</button>
-      <a href="https://github.com" target="_blank" class="btn red">🔗 stories.json ખોલો →</a>
-    </div>
+  <div class="card">
+    <h3>📚 હાલની સ્ટોરીઝ (Edit / Delete)</h3>
+    <div id="list">લોડ થઈ રહ્યું છે...</div>
   </div>
 </div>
 
@@ -96,76 +97,85 @@ function chk(){
   } else alert('ખોટો પાસવર્ડ!');
 }
 
-let n=0, ex=new Array(), storyFileBlob="", storyFileName="";
+let n=0, ei=-1, ex=new Array();
 
-function upMainImg(inp){
-  const f=inp.files.item(0); if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{
-    const im=new Image();
-    im.onload=()=>{
-      const c=document.createElement('canvas'), s=Math.min(1,800/im.width);
-      c.width=im.width*s; c.height=im.height*s;
-      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-      const u=c.toDataURL('image/jpeg',0.72);
-      document.getElementById('mainImg').value=u;
-      document.getElementById('mainPrev').src=u;
-    };
-    im.src=e.target.result;
-  };
-  r.readAsDataURL(f);
-}
-
-function add(c){
+function add(c, pt){
   for(let k=0; k<(c||1); k++){
     n++;
     const d=document.createElement('div');
     d.className='step';
-    d.innerHTML='<div style="display:flex;justify-content:space-between"><b style="color:#f87171;font-size:13px">પેરેગ્રાફ #'+n+'</b><button type="button" onclick="this.parentElement.parentElement.remove()" style="color:#f87171;background:none;border:0;cursor:pointer">કાઢો</button></div><textarea rows="2" class="txt" placeholder="ગુજરાતી લખાણ..." style="margin-top:6px"></textarea>';
+    d.innerHTML='<div style="display:flex;justify-content:space-between"><b style="color:#f87171;font-size:13px">પેરેગ્રાફ #'+n+'</b><button type="button" onclick="this.parentElement.parentElement.remove()" style="color:#f87171;background:none;border:0;cursor:pointer">કાઢો</button></div><textarea rows="2" class="txt" placeholder="ગુજરાતી લખાણ..." style="margin-top:6px">'+(pt||'')+'</textarea>';
     document.getElementById('steps').appendChild(d);
   }
 }
 
-fetch("stories.json?t="+Date.now()).then(r=>r.json()).then(a=>{ if(Array.isArray(a)) ex=a; }).catch(()=>{});
+fetch("stories.json?t="+Date.now()).then(r=>r.json()).then(a=>{ if(Array.isArray(a)) ex=a; show(); }).catch(()=>show());
+
+function show(){
+  const b=document.getElementById('list');
+  if(!ex.length){ b.innerHTML='<p style="color:#64748b;font-size:13px">હજુ કોઈ સ્ટોરી નથી.</p>'; return; }
+  b.innerHTML=ex.map((x,i)=>'<div class="item"><div><b>'+x.title+'</b><br><small style="color:#94a3b8">'+x.categoryName+'</small></div><div style="display:flex;gap:6px"><a href="story.html?id='+x.id+'" class="btn dark">જુઓ</a><button type="button" onclick="ed('+i+')" class="btn dark" style="color:#38bdf8">✏️ Edit</button><button type="button" onclick="dl('+i+')" class="btn dark" style="color:#f87171">ડિલીટ</button></div></div>').join('');
+}
+
+function ed(i){
+  const st=ex.at(i); if(!st)return;
+  ei=i;
+  document.getElementById('fh').innerText='✏️ સ્ટોરી એડિટ કરો';
+  document.getElementById('ceb').style.display='inline-block';
+  document.getElementById('pb').innerText='💾 ફેરફાર સેવ કરો (Copy & Save)';
+  document.getElementById('cat').value=st.category+'|'+st.categoryName;
+  document.getElementById('ttl').value=st.title;
+  document.getElementById('dsc').value=st.desc||'';
+  document.getElementById('mainImg').value=st.image||'';
+  document.getElementById('mainPrev').src=st.image||'';
+  document.getElementById('steps').innerHTML=''; n=0;
+  if(st.s&&st.s.length) st.s.forEach(x=>add(1,x.t)); else add(2);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function rst(){
+  ei=-1;
+  document.getElementById('fh').innerText='✍️ નવી સ્ટોરી બનાવો';
+  document.getElementById('ceb').style.display='none';
+  document.getElementById('pb').innerText='🚀 સ્ટોરી તૈયાર કરો (Copy & Save)';
+  document.getElementById('ttl').value=''; document.getElementById('dsc').value='';
+  document.getElementById('mainImg').value=''; document.getElementById('mainPrev').src='';
+  document.getElementById('steps').innerHTML=''; n=0; add(2);
+}
 
 function gen(){
   const p=document.getElementById('cat').value.split('|'), t=document.getElementById('ttl').value.trim(), d=document.getElementById('dsc').value.trim();
-  const singleImg = document.getElementById('mainImg').value || 'Adalaj.jpg';
+  const singleImg = document.getElementById('mainImg').value.trim() || 'Adalaj.jpg';
   if(!t)return alert('શીર્ષક લખો!');
-  
   const s=new Array();
   document.querySelectorAll('.step').forEach(el=>{
     const tx=el.querySelector('.txt').value.trim();
     if(tx) s.push({t:tx, i:singleImg, c:'#1e1b4b'});
   });
   if(!s.length)return alert('ઓછામાં ઓછો ૧ પેરેગ્રાફ લખો!');
-
-  const newId = 'st-' + Date.now();
-  storyFileName = newId + '.json';
-  
-  const fullObj = { id:newId, category:p.at(0), categoryName:p.at(1), title:t, desc:d||s.at(0).t.slice(0,80), image:singleImg, readTime:Math.max(2,Math.ceil(s.length/2))+' મિનિટ', s:s };
-  storyFileBlob = JSON.stringify(fullObj);
-
-  const lightEntry = { id:newId, category:p.at(0), categoryName:p.at(1), title:t, desc:d||s.at(0).t.slice(0,80), image:singleImg, readTime:Math.max(2,Math.ceil(s.length/2))+' મિનિટ' };
-  const upArr = ex.slice();
-  upArr.unshift(lightEntry);
-
-  document.getElementById('fname').innerText = storyFileName;
-  document.getElementById('jo').value = JSON.stringify(upArr);
-  document.getElementById('ob').style.display = 'block';
-  document.getElementById('ob').scrollIntoView({behavior:'smooth'});
+  const upArr=ex.slice();
+  const obj={id:ei>=0?ex.at(ei).id:('st-'+Date.now()),category:p.at(0),categoryName:p.at(1),title:t,desc:d||s.at(0).t.slice(0,80),image:singleImg,readTime:Math.max(2,Math.ceil(s.length/2))+' મિનિટ',s:s};
+  if(ei>=0) upArr.splice(ei,1,obj); else upArr.unshift(obj);
+  out(upArr);
 }
 
-function dlFile(){
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([storyFileBlob], {type: 'application/json'}));
-  a.download = storyFileName;
-  a.click();
+function dl(i){
+  if(!confirm('આ સ્ટોરી ડિલીટ કરવા નવો કોડ બનશે. આગળ વધવું છે?'))return;
+  const upArr=ex.slice(); upArr.splice(i,1); out(upArr);
+}
+
+function out(arr){
+  const js=JSON.stringify(arr), o=document.getElementById('jo');
+  o.value=js;
+  document.getElementById('kbSize').innerText = Math.round(js.length / 1024);
+  document.getElementById('ob').style.display='block';
+  o.select(); navigator.clipboard.writeText(js).catch(()=>{});
+  document.getElementById('ob').scrollIntoView({behavior:'smooth'});
 }
 
 function cp(){
   const o=document.getElementById('jo'); o.select(); navigator.clipboard.writeText(o.value);
-  alert('કોડ Copy થઈ ગયો છે! હવે stories.json માં પેસ્ટ કરો.');
+  alert('કોડ Copy થઈ ગયો છે! હવે GitHub પર stories.json માં પેસ્ટ કરો.');
 }
 
 add(2);
