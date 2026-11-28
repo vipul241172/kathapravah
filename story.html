@@ -18,9 +18,8 @@
   #box{position:relative;z-index:10;max-width:740px;margin:0 auto;padding:0 16px 120px}
   .hero{min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:60px}
   .badge{background:#ef4444;color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;display:inline-block;margin-bottom:12px}
-  .sec{min-height:72vh;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(25px);transition:0.6s}
-  .sec.show{opacity:1;transform:translateY(0)}
-  .card{background:rgba(15,23,42,0.86);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:22px;font-size:19px;line-height:1.85}
+  .sec{min-height:72vh;display:flex;align-items:center;justify-content:center}
+  .card{background:rgba(15,23,42,0.86);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:22px;font-size:19px;line-height:1.85;transition:0.3s}
   .card.speaking{border-color:#facc15;box-shadow:0 0 25px rgba(250,204,21,0.35)}
   .bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:60;background:rgba(15,23,42,0.95);border:1px solid rgba(255,255,255,0.15);padding:8px 14px;border-radius:30px;display:flex;gap:8px}
   .cbtn{background:#1e293b;color:#fff;border:0;padding:7px 13px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
@@ -56,9 +55,7 @@ const fb = {
 let idx = 0, playing = false, timer = null, speaking = false, tot = 0, auds = [];
 
 const obs = new IntersectionObserver(function(es){
-  es.forEach(function(e){
-    if(e.isIntersecting){ e.target.classList.add('show'); upd(Number(e.target.dataset.i)); }
-  });
+  es.forEach(function(e){ if(e.isIntersecting) upd(Number(e.target.dataset.i)); });
 }, { threshold: 0.35 });
 
 function renderStory(st){
@@ -67,9 +64,7 @@ function renderStory(st){
     return '<div id="b'+i+'" class="bg '+(i===0?'active':'')+'" style="background-color:'+(x.c||'#1e1b4b')+';background-image:url(\''+x.i+'\')"></div>';
   }).join('');
   document.getElementById('box').innerHTML = '<div class="hero"><div><span class="badge">'+st.cat+'</span><h2 style="font-size:24px;margin-bottom:8px">'+st.title+'</h2><p style="font-size:12px;color:#fde047;margin-bottom:8px;font-weight:700">📅 '+(st.pubDate||'')+'</p><p style="color:#94a3b8;font-size:13px">નીચે સ્ક્રોલ કરો અથવા Play દબાવો ↓</p></div></div>' +
-    st.s.map(function(x,i){
-      return '<div class="sec show" id="sec-'+i+'" data-i="'+i+'"><div class="card" id="card-'+i+'">'+x.t+'</div></div>';
-    }).join('');
+    st.s.map(function(x,i){ return '<div class="sec" id="sec-'+i+'" data-i="'+i+'"><div class="card" id="card-'+i+'">'+x.t+'</div></div>'; }).join('');
   document.querySelectorAll('.sec').forEach(function(el){ obs.observe(el); });
   upd(0);
 }
@@ -88,56 +83,55 @@ function stopV(){
 }
 
 function togglePlay(){
-  playing = !playing;
-  const b = document.getElementById('pbtn');
+  playing = !playing; const b = document.getElementById('pbtn');
   if(playing){ b.innerText='⏸ Pause'; b.classList.add('on'); go(idx); }
   else { b.innerText='▶ Play'; b.classList.remove('on'); clearTimeout(timer); stopV(); }
 }
 
 function toggleVoice(){
-  speaking = !speaking;
-  const v = document.getElementById('vbtn');
-  if(speaking){
-    v.innerText='🗣️ Voice: ON'; v.classList.add('on');
-    if(playing){ clearTimeout(timer); go(idx); } else speak(idx, function(){});
-  } else { v.innerText='🗣️ Voice: OFF'; v.classList.remove('on'); stopV(); }
+  speaking = !speaking; const v = document.getElementById('vbtn');
+  if(speaking){ v.innerText='🗣️ Voice: ON'; v.classList.add('on'); if(playing){ clearTimeout(timer); go(idx); } else speak(idx, function(){}); }
+  else { v.innerText='🗣️ Voice: OFF'; v.classList.remove('on'); stopV(); }
 }
 
 function speak(i, done){
-  stopV();
-  const c = document.getElementById('card-'+i);
-  if(!c) return done();
-  const txt = c.innerText.trim();
-  c.classList.add('speaking');
-  const parts = txt.match(/[^।.?!]+[।.?!]*/g) || [txt];
-  let p = 0;
+  stopV(); const c = document.getElementById('card-'+i); if(!c) return done();
+  const txt = c.innerText.trim(); c.classList.add('speaking');
+  const parts = txt.match(/[^।.?!]+[।.?!]*/g) || [txt]; let p = 0;
   const ttsBase = "https://translate.google." + "com/translate_tts?ie=UTF-8&tl=gu&client=tw-ob&q=";
   function nxt(){
     if(!speaking || p >= parts.length){ c.classList.remove('speaking'); return done(); }
-    const q = encodeURIComponent(parts[p++].trim().slice(0,180));
-    if(!q) return nxt();
-    const au = new Audio(ttsBase + q);
-    auds.push(au); au.onended = nxt; au.onerror = nxt; au.play().catch(nxt);
+    const q = encodeURIComponent(parts[p++].trim().slice(0,180)); if(!q) return nxt();
+    const au = new Audio(ttsBase + q); auds.push(au); au.onended = nxt; au.onerror = nxt; au.play().catch(nxt);
   }
   nxt();
 }
 
+function smoothScrollTo(el){
+  const targetY = el.getBoundingClientRect().top + window.pageYOffset - (window.innerHeight / 2) + (el.offsetHeight / 2);
+  const startY = window.pageYOffset, diff = targetY - startY, duration = 1200;
+  let startTime = null;
+  function step(now){
+    if(!startTime) startTime = now;
+    const p = Math.min((now - startTime) / duration, 1);
+    const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+    window.scrollTo(0, startY + diff * ease);
+    if(p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
 function go(i){
   if(!playing) return;
-  if(i >= tot){
-    playing = false; document.getElementById('pbtn').innerText='▶ Replay';
-    document.getElementById('pbtn').classList.remove('on'); stopV(); return;
-  }
-  const el = document.getElementById('sec-'+i);
-  if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+  if(i >= tot){ playing = false; document.getElementById('pbtn').innerText='▶ Replay'; document.getElementById('pbtn').classList.remove('on'); stopV(); return; }
+  const el = document.getElementById('sec-'+i); if(el) smoothScrollTo(el);
   upd(i);
   if(speaking) speak(i, function(){ if(playing) timer = setTimeout(function(){ go(i+1); }, 800); });
   else timer = setTimeout(function(){ go(i+1); }, Number(document.getElementById('spd').value));
 }
 
 function doShare(){
-  const u = "https://api.whatsapp." + "com/send?text=" + encodeURIComponent(document.title + " - " + location.href);
-  window.open(u);
+  window.open("https://api.whatsapp." + "com/send?text=" + encodeURIComponent(document.title + " - " + location.href));
 }
 
 function getDt(id){
@@ -156,8 +150,7 @@ else {
   }).catch(function(){
     fetch("stories.json?t="+Date.now()).then(function(r){ return r.json(); }).then(function(a){
       const f = Array.isArray(a) ? a.find(function(x){ return x.id === sid; }) : null;
-      if(f) renderStory({cat:f.categoryName, title:f.title, pubDate:getDt(f.id), s:f.s});
-      else renderStory(fb);
+      if(f) renderStory({cat:f.categoryName, title:f.title, pubDate:getDt(f.id), s:f.s}); else renderStory(fb);
     }).catch(function(){ renderStory(fb); });
   });
 }
