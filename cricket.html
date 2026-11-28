@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🏏 Cricket Live Score & Prediction - સમયચક્ર (SamayChakra)</title>
+<title>🏏 Cricket Live Center & Analysis - સમયચક્ર (SamayChakra)</title>
 <link href="https://googleapis.com" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -18,23 +18,17 @@
   .card{background:rgba(17,24,39,0.85);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:22px;margin-bottom:22px;box-shadow:0 10px 30px rgba(0,0,0,0.4)}
   .badge-live{background:#ef4444;color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;margin-bottom:12px}
 
-  /* Scoreboard */
-  .match-box{background:linear-gradient(135deg,#064e3b,#0f172a);border:1px solid #10b981;border-radius:16px;padding:20px;margin-bottom:16px}
+  .match-box{background:linear-gradient(135deg,#064e3b,#0f172a);border:1px solid #10b981;border-radius:16px;padding:20px;margin-bottom:14px}
   .teams{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0}
   .team{flex:1;min-width:140px}
-  .team h3{font-size:20px;font-weight:800;color:#fff}
-  .score{font-size:26px;font-weight:800;color:#fde047;margin-top:4px}
+  .team h3{font-size:19px;font-weight:800;color:#fff}
+  .score{font-size:24px;font-weight:800;color:#fde047;margin-top:4px}
   .status-txt{background:rgba(0,0,0,0.35);padding:8px 14px;border-radius:10px;font-size:14px;color:#6ee7b7;font-weight:600;margin-top:10px}
 
-  /* Prediction Bar */
-  .pred-bar{height:14px;background:#1e293b;border-radius:10px;overflow:hidden;display:flex;margin:10px 0}
-  .pred-a{background:linear-gradient(90deg,#3b82f6,#2563eb);height:100%}
-  .pred-b{background:linear-gradient(90deg,#f59e0b,#d97706);height:100%}
-
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
-  .info-item{background:#0f172a;border:1px solid #1e293b;padding:14px;border-radius:12px;margin-top:10px}
-  h2{font-size:20px;color:#38bdf8;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-  p{font-size:14px;color:#cbd5e1;line-height:1.7}
+  .info-item{background:#0f172a;border:1px solid #1e293b;padding:15px;border-radius:12px;margin-top:10px}
+  h2{font-size:19px;color:#38bdf8;margin-bottom:10px}
+  p{font-size:14px;color:#cbd5e1;line-height:1.75}
 
   footer{background:#05080f;border-top:1px solid #1f2937;text-align:center;padding:20px;color:#64748b;font-size:13px;margin-top:40px}
   footer a{color:#94a3b8;text-decoration:none;margin:0 8px}
@@ -43,80 +37,62 @@
 <body>
 
 <header>
-  <a href="cricket.html" class="logo"><span class="live-dot"></span> 🏏 Cricket Live Hub</a>
+  <a href="cricket.html" class="logo"><span class="live-dot"></span> 🏏 Cricket Live Center</a>
   <a href="index.html" class="back-btn">← સમયચક્ર હોમ</a>
 </header>
 
 <div class="wrap">
 
-  <!-- Live Score Section -->
+  <!-- Live Score Section (AdSense Safe: No Fake Scores) -->
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-      <span class="badge-live"><span class="live-dot" style="background:#fff"></span> LIVE MATCH CENTER</span>
-      <button onclick="loadLiveScores()" style="background:#10b981;color:#fff;border:0;padding:6px 14px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🔄 સ્કોર રિફ્રેશ કરો</button>
+      <span class="badge-live"><span class="live-dot" style="background:#fff"></span> LIVE SCOREBOARD</span>
+      <button onclick="loadLiveScores(true)" style="background:#10b981;color:#fff;border:0;padding:6px 14px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🔄 સ્કોર રિફ્રેશ કરો</button>
     </div>
 
     <div id="liveContainer">
-      <div class="match-box">
-        <small style="color:#a7f3d0">International T20 / ODI Series • Live Update</small>
-        <div class="teams">
-          <div class="team">
-            <h3>🇮🇳 INDIA (ભારત)</h3>
-            <div class="score">198/4 (18.2 Ov)</div>
-          </div>
-          <div style="font-weight:800;color:#ef4444;font-size:18px">VS</div>
-          <div class="team" style="text-align:right">
-            <h3>🇦🇺 AUSTRALIA (ઓસ્ટ્રેલિયા)</h3>
-            <div class="score">185/8 (20.0 Ov)</div>
-          </div>
-        </div>
-        <div class="status-txt">🔥 ભારતને જીતવા માટે ૧૦ બોલમાં માત્ર ૬ રનની જરૂર છે! (રન રેટ: 10.80)</div>
+      <div class="match-box" style="text-align:center;padding:30px 16px">
+        <p style="font-size:17px;font-weight:700;color:#6ee7b7">⏳ Loading Live Matches...</p>
+        <p style="font-size:13px;color:#cbd5e1;margin-top:6px">હાલમાં ચાલી રહેલી આંતરરાષ્ટ્રીય અને T20 મેચોના લાઈવ સ્કોર અહીં દેખાશે.</p>
       </div>
     </div>
   </div>
 
-  <!-- Match Prediction & Pitch Report -->
+  <!-- Playing 11 Squads (Loaded from cricket-data.json) -->
+  <div class="card">
+    <h2 id="mTitle">👥 ટીમ સ્ક્વોડ અને પ્લેઈંગ-૧૧ (Playing 11)</h2>
+    <div class="grid-2">
+      <div class="info-item">
+        <b id="tAName" style="color:#60a5fa;font-size:15px">લોડ થઈ રહ્યું છે...</b>
+        <p id="tAPlayers" style="font-size:13px;margin-top:6px;color:#e2e8f0"></p>
+      </div>
+      <div class="info-item">
+        <b id="tBName" style="color:#fbbf24;font-size:15px">લોડ થઈ રહ્યું છે...</b>
+        <p id="tBPlayers" style="font-size:13px;margin-top:6px;color:#e2e8f0"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pitch Report & Match Analysis -->
   <div class="grid-2">
     <div class="card">
-      <h2>🔮 મેચ પ્રિડિક્શન (Win Prediction)</h2>
-      <p>આજની મેચમાં પિચની સ્થિતિ અને બંને ટીમોના હાલના ફોર્મને જોતા જીતવાની સંભાવના:</p>
-      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-top:14px">
-        <span style="color:#60a5fa">🇮🇳 ભારત: 68%</span>
-        <span style="color:#fbbf24">🇦🇺 ઓસ્ટ્રેલિયા: 32%</span>
-      </div>
-      <div class="pred-bar">
-        <div class="pred-a" style="width:68%"></div>
-        <div class="pred-b" style="width:32%"></div>
+      <h2>🏟️ પિચ રિપોર્ટ અને ટોસ અપડેટ</h2>
+      <div class="info-item">
+        <b style="color:#38bdf8">પિચનો મિજાજ (Pitch Report):</b>
+        <p id="pReport" style="font-size:13px;margin-top:4px"></p>
       </div>
       <div class="info-item">
-        <b style="color:#fde047">⭐ આજના કી-પ્લેયર્સ (Key Players):</b><br>
-        <small style="color:#cbd5e1">બેટિંગ: સૂર્યકુમાર યાદવ, શુભમન ગિલ • બોલિંગ: જસપ્રીત બુમરાહ</small>
+        <b style="color:#10b981">ટોસ અપડેટ (Toss Update):</b>
+        <p id="tUpdate" style="font-size:13px;margin-top:4px"></p>
       </div>
     </div>
 
     <div class="card">
-      <h2>🏟️ પિચ રિપોર્ટ અને હવામાન (Pitch & Weather)</h2>
+      <h2>📊 મેચ વિશ્લેષણ (Match Analysis)</h2>
       <div class="info-item">
-        <b style="color:#38bdf8">પિચનો મિજાજ (Pitch Report):</b>
-        <p style="font-size:13px;margin-top:4px">આ બેટિંગ-ફ્રેન્ડલી પિચ છે. પ્રથમ દાવમાં સરેરાશ સ્કોર ૧૮૫+ રહેવાની શક્યતા છે. બીજા દાવમાં ઝાકળ (Dew) પડવાથી બોલરોને મુશ્કેલી પડી શકે છે.</p>
+        <b style="color:#fde047">નિષ્ણાત વિશ્લેષણ (Key Insights):</b>
+        <p id="eAnalysis" style="font-size:13px;margin-top:6px"></p>
       </div>
-      <div class="info-item">
-        <b style="color:#10b981">ટોસ ફેક્ટર (Toss Prediction):</b>
-        <p style="font-size:13px;margin-top:4px">ટોસ જીતનારી ટીમ પહેલા બોલિંગ (Chase) કરવાનું પસંદ કરશે.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Upcoming Matches & Cricket Facts -->
-  <div class="card">
-    <h2>📅 આગામી ક્રિકેટ મેચો અને મહત્વની માહિતી</h2>
-    <div class="info-item">
-      <b>🏏 ICC ચેમ્પિયન્સ અને T20 સિરીઝ અપડેટ:</b>
-      <p style="font-size:13px;margin-top:4px">ભારતીય ટીમ આગામી મહિને ઘરઆંગણે હાઈ-વોલ્ટેજ T20 અને વન-ડે સિરીઝ રમવા જઈ રહી છે, જેમાં યુવા ખેલાડીઓને ખાસ તક આપવામાં આવી છે.</p>
-    </div>
-    <div class="info-item">
-      <b>📊 ક્રિકેટ રેકોર્ડ્સ અને રસપ્રદ તથ્યો:</b>
-      <p style="font-size:13px;margin-top:4px">અમદાવાદનું નરેન્દ્ર મોદી સ્ટેડિયમ વિશ્વનું સૌથી મોટું ક્રિકેટ સ્ટેડિયમ છે, જ્યાં એકસાથે ૧,૩૨,૦૦૦ પ્રેક્ષકો બેસીને મેચનો આનંદ માણી શકે છે.</p>
     </div>
   </div>
 
@@ -128,32 +104,56 @@
 </footer>
 
 <script>
-// CricketData.org Free API Key (Jo tame free key banavo to ahi paste karvi, auto live score chalu thai jase)
-const CRIC_API_KEY = ""; 
+// 1. Load Manual Team Squads, Pitch Report & Analysis from cricket-data.json
+fetch("cricket-data.json?t=" + Date.now()).then(r => r.json()).then(d => {
+  document.getElementById('mTitle').innerText = "👥 " + (d.matchTitle || "ટીમ સ્ક્વોડ અને પ્લેઈંગ-૧૧");
+  document.getElementById('tAName').innerText = d.teamAName || "";
+  document.getElementById('tAPlayers').innerText = d.teamAPlayers || "";
+  document.getElementById('tBName').innerText = d.teamBName || "";
+  document.getElementById('tBPlayers').innerText = d.teamBPlayers || "";
+  document.getElementById('pReport').innerText = d.pitchReport || "";
+  document.getElementById('tUpdate').innerText = d.tossUpdate || "";
+  document.getElementById('eAnalysis').innerText = d.expertAnalysis || "";
+}).catch(() => {});
 
-async function loadLiveScores(){
-  if(!CRIC_API_KEY){
-    alert("સ્કોર અપડેટ થઈ ગયો છે! (નોંધ: ઓટોમેટિક રિયલ-ટાઈમ API માટે cricketdata.org ની ફ્રી Key કોડમાં ઉમેરી શકાય છે).");
+// 2. Live Score API with Local Caching (Saves API quota)
+const CRIC_API_KEY = ""; // Ahi cricketdata.org ni free API key mukvi (athva Cloudflare Worker URL)
+
+async function loadLiveScores(force){
+  if(!CRIC_API_KEY) return;
+  const cached = localStorage.getItem('cric_cache');
+  const cacheTime = localStorage.getItem('cric_cache_time');
+  
+  // 3 minute sudhi cache vaparse jethi API hits na vapray
+  if(!force && cached && cacheTime && (Date.now() - cacheTime < 180000)){
+    renderMatches(JSON.parse(cached));
     return;
   }
   try {
     const res = await fetch("https://cricapi.com" + CRIC_API_KEY + "&offset=0");
     const data = await res.json();
     if(data && data.data && data.data.length){
-      const box = document.getElementById('liveContainer');
-      box.innerHTML = data.data.slice(0, 3).map(m => {
-        const s1 = m.score && m.score.at(0) ? (m.score.at(0).r + "/" + m.score.at(0).w + " (" + m.score.at(0).o + " Ov)") : "Yet to bat";
-        const s2 = m.score && m.score.at(1) ? (m.score.at(1).r + "/" + m.score.at(1).w + " (" + m.score.at(1).o + " Ov)") : "Yet to bat";
-        return '<div class="match-box"><small style="color:#a7f3d0">' + m.matchType.toUpperCase() + ' • ' + m.name + '</small>' +
-          '<div class="teams"><div class="team"><h3>' + (m.teams.at(0) || 'Team A') + '</h3><div class="score">' + s1 + '</div></div>' +
-          '<div style="font-weight:800;color:#ef4444">VS</div>' +
-          '<div class="team" style="text-align:right"><h3>' + (m.teams.at(1) || 'Team B') + '</h3><div class="score">' + s2 + '</div></div></div>' +
-          '<div class="status-txt">🔥 ' + m.status + '</div></div>';
-      }).join('');
+      localStorage.setItem('cric_cache', JSON.stringify(data.data));
+      localStorage.setItem('cric_cache_time', Date.now());
+      renderMatches(data.data);
     }
   } catch(e) {}
 }
-if(CRIC_API_KEY) loadLiveScores();
+
+function renderMatches(matches){
+  const box = document.getElementById('liveContainer');
+  box.innerHTML = matches.slice(0, 3).map(m => {
+    const s1 = m.score && m.score.at(0) ? (m.score.at(0).r + "/" + m.score.at(0).w + " (" + m.score.at(0).o + " Ov)") : "Yet to bat";
+    const s2 = m.score && m.score.at(1) ? (m.score.at(1).r + "/" + m.score.at(1).w + " (" + m.score.at(1).o + " Ov)") : "Yet to bat";
+    return '<div class="match-box"><small style="color:#a7f3d0">' + m.matchType.toUpperCase() + ' • ' + m.name + '</small>' +
+      '<div class="teams"><div class="team"><h3>' + (m.teams.at(0) || 'Team A') + '</h3><div class="score">' + s1 + '</div></div>' +
+      '<div style="font-weight:800;color:#ef4444">VS</div>' +
+      '<div class="team" style="text-align:right"><h3>' + (m.teams.at(1) || 'Team B') + '</h3><div class="score">' + s2 + '</div></div></div>' +
+      '<div class="status-txt">🔥 ' + m.status + '</div></div>';
+  }).join('');
+}
+
+if(CRIC_API_KEY) loadLiveScores(false);
 </script>
 </body>
 </html>
