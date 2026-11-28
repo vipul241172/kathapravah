@@ -116,15 +116,15 @@ fetch("cricket-data.json?t=" + Date.now()).then(r => r.json()).then(d => {
   document.getElementById('eAnalysis').innerText = d.expertAnalysis || "";
 }).catch(() => {});
 
-// 2. Live Score API with Local Caching (Saves API quota)
-const CRIC_API_KEY = "d4543d14-4e4b-4dd3-b405-cbaf64ae538f"; // Ahi cricketdata.org ni free API key mukvi (athva Cloudflare Worker URL)
+// 2. Live Score API with Local Caching & Recent Matches Fallback
+const CRIC_API_KEY = "d4543d14-4e4b-4dd3-b405-cbaf64ae538f";
 
 async function loadLiveScores(force){
   if(!CRIC_API_KEY) return;
-  const cached = localStorage.getItem('cric_cache');
-  const cacheTime = localStorage.getItem('cric_cache_time');
+  const box = document.getElementById('liveContainer');
+  const cached = localStorage.getItem('cric_cache_v2');
+  const cacheTime = localStorage.getItem('cric_cache_time_v2');
   
-  // 3 minute sudhi cache vaparse jethi API hits na vapray
   if(!force && cached && cacheTime && (Date.now() - cacheTime < 180000)){
     renderMatches(JSON.parse(cached));
     return;
@@ -132,29 +132,34 @@ async function loadLiveScores(force){
   try {
     const res = await fetch("https://cricapi.com" + CRIC_API_KEY + "&offset=0");
     const data = await res.json();
-    if(data && data.data && data.data.length){
-      localStorage.setItem('cric_cache', JSON.stringify(data.data));
-      localStorage.setItem('cric_cache_time', Date.now());
+    if(data && data.status === "success" && data.data && data.data.length){
+      localStorage.setItem('cric_cache_v2', JSON.stringify(data.data));
+      localStorage.setItem('cric_cache_time_v2', Date.now());
       renderMatches(data.data);
+    } else {
+      box.innerHTML = '<div class="match-box" style="text-align:center;padding:24px"><p style="color:#fde047;font-weight:700">🏏 ' + (data.reason || "હાલમાં કોઈ લાઈવ મેચ ચાલુ નથી, ટૂંક સમયમાં અપડેટ થશે.") + '</p></div>';
     }
-  } catch(e) {}
+  } catch(e) {
+    box.innerHTML = '<div class="match-box" style="text-align:center;padding:24px"><p style="color:#fca5a5;font-weight:700">⚠️ નેટવર્ક અથવા ફાયરવોલના કારણે લાઈવ સ્કોર લોડ થઈ શક્યો નથી. મોબાઈલ ડેટા પર ચેક કરો.</p></div>';
+  }
 }
 
 function renderMatches(matches){
   const box = document.getElementById('liveContainer');
-  box.innerHTML = matches.slice(0, 3).map(m => {
+  box.innerHTML = matches.slice(0, 4).map(m => {
     const s1 = m.score && m.score.at(0) ? (m.score.at(0).r + "/" + m.score.at(0).w + " (" + m.score.at(0).o + " Ov)") : "Yet to bat";
     const s2 = m.score && m.score.at(1) ? (m.score.at(1).r + "/" + m.score.at(1).w + " (" + m.score.at(1).o + " Ov)") : "Yet to bat";
-    return '<div class="match-box"><small style="color:#a7f3d0">' + m.matchType.toUpperCase() + ' • ' + m.name + '</small>' +
-      '<div class="teams"><div class="team"><h3>' + (m.teams.at(0) || 'Team A') + '</h3><div class="score">' + s1 + '</div></div>' +
+    const t0 = (m.teams && m.teams.at(0)) ? m.teams.at(0) : 'Team A';
+    const t1 = (m.teams && m.teams.at(1)) ? m.teams.at(1) : 'Team B';
+    return '<div class="match-box"><small style="color:#a7f3d0">' + (m.matchType || 'MATCH').toUpperCase() + ' • ' + m.name + '</small>' +
+      '<div class="teams"><div class="team"><h3>' + t0 + '</h3><div class="score">' + s1 + '</div></div>' +
       '<div style="font-weight:800;color:#ef4444">VS</div>' +
-      '<div class="team" style="text-align:right"><h3>' + (m.teams.at(1) || 'Team B') + '</h3><div class="score">' + s2 + '</div></div></div>' +
+      '<div class="team" style="text-align:right"><h3>' + t1 + '</h3><div class="score">' + s2 + '</div></div></div>' +
       '<div class="status-txt">🔥 ' + m.status + '</div></div>';
   }).join('');
 }
 
 if(CRIC_API_KEY) loadLiveScores(false);
-</script>
 </body>
 </html>
 <!-- COMPLETE -->
