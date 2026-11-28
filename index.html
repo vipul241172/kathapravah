@@ -64,6 +64,21 @@
   100%{transform:scale(1.06);box-shadow:0 0 24px rgba(250,204,21,0.95)}
 }
 @keyframes gradMove{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+ .cric-news-tab{
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
+  color:#fff !important;
+  border:1px solid #38bdf8 !important;
+  box-shadow:0 0 14px rgba(56,189,248,0.5);
+  animation:pulseBlue 2s infinite alternate;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+}
+@keyframes pulseBlue{
+  0%{transform:translateY(0);box-shadow:0 0 10px rgba(56,189,248,0.4)}
+  100%{transform:translateY(-2px);box-shadow:0 0 20px rgba(124,58,237,0.85)}
+}
 </style>
 </head>
 <body>
@@ -88,6 +103,7 @@
   <a href="cricket.html" class="cbtn cric-btn">🏏 Cricket Live <span style="background:#ef4444;font-size:10px;padding:2px 6px;border-radius:10px">LIVE</span></a>
   <button class="cbtn on" onclick="flt('all',this)">✨ બધુજ અહિયાં</button>
   <button class="cbtn" onclick="flt('news',this)">📰 સમાચાર</button>
+  <a href="cricket.html" class="cbtn cric-news-tab">⚡ Cricket Latest News</a>
   <button class="cbtn" onclick="flt('horror',this)">👻 રહસ્યમય વાર્તાઓ</button>
   <button class="cbtn" onclick="flt('history',this)">🏛️ ઇતિહાસ</button>
   <button class="cbtn" onclick="flt('tech',this)">🚀 ટેકનોલોજી</button>
