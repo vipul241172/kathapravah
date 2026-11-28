@@ -9,18 +9,18 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Noto Sans Gujarati',sans-serif;background:#060913;color:#fff;overflow-x:hidden}
-  #pg{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,#ef4444,#facc15);width:0%;z-index:99;transition:width 0.4s ease}
+  #pg{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,#ef4444,#facc15);width:0%;z-index:99}
   .top{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(6,9,19,0.9);backdrop-filter:blur(10px);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.08)}
   .top a{color:#fff;text-decoration:none;font-weight:700;font-size:13px;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:8px}
   #bgs{position:fixed;inset:0;z-index:0}
   .bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease}
   .bg.active{opacity:0.42}
   .bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle,rgba(6,9,19,0.3),rgba(6,9,19,0.92))}
-  #box{position:relative;z-index:10;max-width:740px;margin:0 auto;padding:0 16px 130px}
-  .hero{min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:60px}
+  #box{position:relative;z-index:10;max-width:740px;margin:0 auto;padding:0 16px 160px}
+  .hero{min-height:70vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-top:60px}
   .badge{background:#ef4444;color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;display:inline-block;margin-bottom:12px}
-  .sec{min-height:72vh;display:flex;align-items:center;justify-content:center}
-  .card{background:rgba(15,23,42,0.86);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:24px;font-size:19px;line-height:1.85;box-shadow:0 15px 35px rgba(0,0,0,0.55);transition:0.3s}
+  .sec{margin:40px 0;display:flex;align-items:center;justify-content:center}
+  .card{background:rgba(15,23,42,0.86);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:24px;font-size:19px;line-height:1.85;box-shadow:0 15px 35px rgba(0,0,0,0.55);width:100%}
   .card.speaking{border-color:#facc15;box-shadow:0 0 28px rgba(250,204,21,0.35)}
   .bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:60;background:rgba(15,23,42,0.95);border:1px solid rgba(255,255,255,0.15);padding:8px 14px;border-radius:30px;display:flex;gap:8px;align-items:center}
   .cbtn{background:#1e293b;color:#fff;border:0;padding:7px 13px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
@@ -39,13 +39,20 @@
 <div class="bar">
   <button id="pbtn" class="cbtn" onclick="togglePlay()">▶ Play</button>
   <button id="vbtn" class="cbtn" onclick="toggleVoice()">🗣️ Voice: OFF</button>
-  <select id="spd" style="background:#1e293b;color:#fff;border:0;padding:6px 10px;border-radius:14px;font-family:inherit;font-size:12px"><option value="5000">Normal</option><option value="3500">Fast</option><option value="7500">Slow</option></select>
+  <select id="spd" style="background:#1e293b;color:#fff;border:0;padding:6px 10px;border-radius:14px;font-family:inherit;font-size:12px">
+    <option value="1.2">Normal</option>
+    <option value="2.2">Fast</option>
+    <option value="0.7">Slow</option>
+  </select>
 </div>
 
 <script>
 const fb={cat:"ઇતિહાસ",title:"અડાલજની વાવ: પથ્થરોમાં કોતરાયેલી અમર પ્રેમ અને બલિદાનની ગાથા",pubDate:"25 Nov 2026",s:[{t:"ઈસવીસન ૧૪૯૮માં ગુજરાતના પાટણ નજીક દાંડાઈ દેશના રાજા વીરસિંહ વાઘેલા રાજ કરતા હતા. તેમની રાણી રૂડાબાઈ અત્યંત રૂપવાન અને પ્રજાવત્સલ હતા.",i:"Adalaj.jpg",c:"#1e1b4b"},{t:"રાણી રૂડાબાઈએ પ્રજા માટે પાંચ માળ ઊંડી અને અદભૂત નકશીકામવાળી વાવ તૈયાર કરાવી અને પોતાના પતિની યાદમાં પ્રાણ ત્યાગી દીધા.",i:"Adalaj.jpg",c:"#1e1b4b"}]};
-let idx=0,playing=false,timer=null,speaking=false,tot=0,auds=[],scTimer=null;
-const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting&&!playing&&!scTimer)upd(Number(e.target.dataset.i));});},{threshold:0.45});
+let idx=0,playing=false,speaking=false,tot=0,auds=[],rafId=null;
+
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting)upd(Number(e.target.dataset.i));});
+},{threshold:0.5});
 
 function renderStory(st){
   tot=st.s.length;
@@ -62,58 +69,69 @@ function upd(i){
   document.getElementById('cnt').innerText=(i+1)+' / '+tot;
 }
 
+function continuousLoop(){
+  if(!playing)return;
+  const speed=Number(document.getElementById('spd').value);
+  window.scrollBy(0,speed);
+  if((window.innerHeight+window.scrollY)>=document.body.offsetHeight-10){
+    playing=false;
+    document.getElementById('pbtn').innerText='▶ Replay';
+    document.getElementById('pbtn').classList.remove('on');
+    return;
+  }
+  rafId=requestAnimationFrame(continuousLoop);
+}
+
+function togglePlay(){
+  playing=!playing;
+  const b=document.getElementById('pbtn');
+  if(playing){
+    if(b.innerText.indexOf('Replay')!==-1)window.scrollTo(0,0);
+    b.innerText='⏸ Pause';
+    b.classList.add('on');
+    rafId=requestAnimationFrame(continuousLoop);
+  }else{
+    b.innerText='▶ Play';
+    b.classList.remove('on');
+    cancelAnimationFrame(rafId);
+  }
+}
+
 function stopV(){
   auds.forEach(a=>{if(a){a.pause();a.currentTime=0;}});
   document.querySelectorAll('.card').forEach(c=>c.classList.remove('speaking'));
 }
 
-function togglePlay(){
-  playing=!playing;const b=document.getElementById('pbtn');
-  if(playing){if(idx>=tot-1&&b.innerText.indexOf('Replay')!==-1)idx=0;b.innerText='⏸ Pause';b.classList.add('on');go(idx);}
-  else{b.innerText='▶ Play';b.classList.remove('on');clearTimeout(timer);clearInterval(scTimer);scTimer=null;stopV();}
-}
-
 function toggleVoice(){
-  speaking=!speaking;const v=document.getElementById('vbtn');
-  if(speaking){v.innerText='🗣️ Voice: ON';v.classList.add('on');if(playing){clearTimeout(timer);go(idx);}else speak(idx,()=>{});}
+  speaking=!speaking;
+  const v=document.getElementById('vbtn');
+  if(speaking){v.innerText='🗣️ Voice: ON';v.classList.add('on');speakSeq(idx);}
   else{v.innerText='🗣️ Voice: OFF';v.classList.remove('on');stopV();}
 }
 
-function speak(i,done){
-  stopV();const c=document.getElementById('card-'+i);if(!c)return done();
-  const txt=c.innerText.trim();c.classList.add('speaking');
-  const parts=txt.match(/[^।.?!]+[।.?!]*/g)||[txt];let p=0;
+function speakSeq(i){
+  if(!speaking||i>=tot){stopV();return;}
+  stopV();
+  const c=document.getElementById('card-'+i);
+  if(!c)return;
+  const txt=c.innerText.trim();
+  c.classList.add('speaking');
+  const parts=txt.match(/[^।.?!]+[।.?!]*/g)||[txt];
+  let p=0;
   const base="https://translate.google."+"com/translate_tts?ie=UTF-8&tl=gu&client=gtx&q=";
   function nxt(){
-    if(!speaking||p>=parts.length){c.classList.remove('speaking');return done();}
-    const q=encodeURIComponent(parts[p++].trim().slice(0,180));if(!q)return nxt();
-    const au=new Audio(base+q);au.referrerPolicy="no-referrer";auds.push(au);
-    au.onended=nxt;au.onerror=nxt;au.play().catch(nxt);
+    if(!speaking)return stopV();
+    if(p>=parts.length){c.classList.remove('speaking');speakSeq(i+1);return;}
+    const q=encodeURIComponent(parts[p++].trim().slice(0,180));
+    if(!q)return nxt();
+    const au=new Audio(base+q);
+    au.referrerPolicy="no-referrer";
+    auds.push(au);
+    au.onended=nxt;
+    au.onerror=nxt;
+    au.play().catch(nxt);
   }
   nxt();
-}
-
-function silkyScroll(el){
-  clearInterval(scTimer);
-  const target=el.getBoundingClientRect().top+window.pageYOffset-(window.innerHeight/2)+(el.offsetHeight/2);
-  const start=window.pageYOffset,dist=target-start;
-  let step=0,steps=75; // 75 steps * 16ms = 1.2 seconds silky glide
-  scTimer=setInterval(()=>{
-    step++;
-    const t=step/steps;
-    const ease=t<0.5?2*t*t:-1+(4-2*t)*t;
-    window.scrollTo(0,start+dist*ease);
-    if(step>=steps){clearInterval(scTimer);scTimer=null;}
-  },16);
-}
-
-function go(i){
-  if(!playing)return;
-  if(i>=tot){playing=false;document.getElementById('pbtn').innerText='▶ Replay';document.getElementById('pbtn').classList.remove('on');stopV();return;}
-  const el=document.getElementById('sec-'+i);if(el)silkyScroll(el);
-  upd(i);
-  if(speaking)speak(i,()=>{if(playing)timer=setTimeout(()=>go(i+1),800);});
-  else timer=setTimeout(()=>go(i+1),Number(document.getElementById('spd').value));
 }
 
 function doShare(){window.open("https://api.whatsapp."+"com/send?text="+encodeURIComponent(document.title+" - "+location.href));}
