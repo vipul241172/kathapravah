@@ -4,157 +4,71 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>સમયચક્ર - ગુજરાતી વિઝ્યુઅલ સ્ટોરીઝ અને સમાચાર</title>
- <link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="description" content="ગુજરાતીમાં ઇન્ટરેક્ટિવ સ્ક્રોલ-સ્ટોરીઝ, ઇતિહાસ, રહસ્યમય વાર્તાઓ, સમાચાર અને ટેકનોલોજી.">
 <link href="https://googleapis.com" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    font-family:'Noto Sans Gujarati',sans-serif;
-    background:#060913;
-    color:#fff;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    overflow-x:hidden;
-    position:relative;
-  }
-  /* Animated Ambient Background Glows */
+  body{font-family:'Noto Sans Gujarati',sans-serif;background:#060913;color:#fff;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;position:relative}
   .orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:0.28;z-index:0;pointer-events:none;animation:float 12s infinite alternate ease-in-out}
   .orb-1{width:380px;height:380px;background:#ef4444;top:-80px;left:-80px}
   .orb-2{width:420px;height:420px;background:#3b82f6;bottom:10%;right:-100px;animation-delay:4s}
   .orb-3{width:300px;height:300px;background:#8b5cf6;top:40%;left:30%;animation-delay:8s}
-  @keyframes float{
-    0%{transform:translate(0,0) scale(1)}
-    100%{transform:translate(40px,30px) scale(1.15)}
-  }
-
-  /* Glass Header */
-  header{
-    background:rgba(10,15,28,0.75);
-    backdrop-filter:blur(14px);
-    border-bottom:1px solid rgba(255,255,255,0.08);
-    padding:14px 22px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    position:sticky;
-    top:0;
-    z-index:50;
-  }
-  .logo{
-    font-size:26px;font-weight:800;text-decoration:none;
-    background:linear-gradient(90deg,#ef4444,#f97316,#facc15);
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-    letter-spacing:0.5px;
-  }
-  .search-box{
-    background:rgba(30,41,59,0.7);border:1px solid rgba(255,255,255,0.12);
-    color:#fff;padding:8px 14px;border-radius:20px;font-family:inherit;font-size:13px;
-    width:190px;outline:none;transition:0.3s;
-  }
-  .search-box:focus{width:240px;border-color:#ef4444;background:rgba(30,41,59,0.95)}
-
-  /* Hero Section */
-  .hero{
-    position:relative;z-index:10;text-align:center;
-    padding:48px 16px 24px;max-width:850px;margin:0 auto;
-    animation:fadeDown 0.8s ease-out;
-  }
+  @keyframes float{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.15)}}
+  header{background:rgba(10,15,28,0.85);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,0.08);padding:12px 22px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;gap:10px;flex-wrap:wrap}
+  .logo{font-size:25px;font-weight:800;background:linear-gradient(90deg,#ef4444,#f97316,#facc15);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .top-pill{background:rgba(239,68,68,0.14);border:1px solid rgba(239,68,68,0.38);color:#fca5a5;font-size:12px;font-weight:700;padding:6px 16px;border-radius:20px;text-align:center}
+  @media(max-width:720px){header{justify-content:center;text-align:center}.top-pill{order:3;width:100%;font-size:11px}}
+  .hero{position:relative;z-index:10;text-align:center;padding:24px 16px;max-width:850px;margin:0 auto;animation:fadeDown 0.8s ease-out}
   @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}
-  .pill-tag{
-    display:inline-block;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);
-    color:#fca5a5;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:14px;
-  }
-  .hero h1{font-size:36px;font-weight:800;line-height:1.3;margin-bottom:12px}
-  .grad-text{background:linear-gradient(90deg,#ef4444,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .hero p{color:#94a3b8;font-size:16px;max-width:600px;margin:0 auto}
-
-  /* Category Tabs */
-  .cats{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:26px}
-  .cbtn{
-    background:rgba(17,24,39,0.8);backdrop-filter:blur(8px);
-    color:#cbd5e1;border:1px solid rgba(255,255,255,0.1);
-    padding:9px 18px;border-radius:25px;cursor:pointer;
-    font-family:inherit;font-size:13px;font-weight:700;transition:0.25s;
-  }
+  .ad-top-space{max-width:728px;min-height:10px;margin:0 auto 16px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+  .hero h1{font-size:35px;font-weight:800;line-height:1.3;margin-bottom:12px}
+  .hero-sub{color:#fde047;font-size:16px;font-weight:600;max-width:650px;margin:0 auto;animation:slowPulse 2.8s infinite ease-in-out}
+  @keyframes slowPulse{0%,100%{opacity:1}50%{opacity:0.35}}
+  .cats{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:24px}
+  .cbtn{background:rgba(17,24,39,0.8);backdrop-filter:blur(8px);color:#cbd5e1;border:1px solid rgba(255,255,255,0.1);padding:9px 18px;border-radius:25px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;transition:0.25s}
   .cbtn:hover{border-color:#ef4444;color:#fff;transform:translateY(-2px)}
   .cbtn.on{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border-color:transparent;box-shadow:0 6px 20px rgba(239,68,68,0.4)}
-
-  /* Stories Grid */
-  .grid{
-    position:relative;z-index:10;max-width:1100px;margin:24px auto;padding:0 16px;
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));
-    gap:24px;width:100%;flex:1;
-  }
-  .card{
-    background:rgba(17,24,39,0.75);backdrop-filter:blur(12px);
-    border:1px solid rgba(255,255,255,0.09);border-radius:18px;overflow:hidden;
-    display:flex;flex-direction:column;
-    transition:transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s, border-color 0.35s;
-    animation:cardUp 0.6s ease-out both;
-  }
+  .grid{position:relative;z-index:10;max-width:1100px;margin:20px auto;padding:0 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:24px;width:100%;flex:1}
+  .card{background:rgba(17,24,39,0.75);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.09);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:0.35s;animation:cardUp 0.6s ease-out both}
   @keyframes cardUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
-  .card:hover{
-    transform:translateY(-8px) scale(1.01);
-    border-color:rgba(239,68,68,0.6);
-    box-shadow:0 20px 40px rgba(0,0,0,0.6), 0 0 25px rgba(239,68,68,0.18);
-  }
+  .card:hover{transform:translateY(-8px);border-color:rgba(239,68,68,0.6);box-shadow:0 20px 40px rgba(0,0,0,0.6)}
   .card-link{text-decoration:none;color:inherit;display:flex;flex-direction:column;flex:1}
   .thumb{height:200px;background:linear-gradient(135deg,#450a0a,#1e1b4b);position:relative;overflow:hidden}
   .thumb img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease}
   .card:hover .thumb img{transform:scale(1.1)}
   .thumb::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(17,24,39,0.9) 0%,transparent 50%)}
-  .badge{
-    position:absolute;top:12px;left:12px;z-index:2;
-    background:rgba(239,68,68,0.92);backdrop-filter:blur(4px);
-    color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px;
-  }
+  .badge{position:absolute;top:12px;left:12px;z-index:2;background:rgba(239,68,68,0.92);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px}
   .body{padding:18px 20px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
-  .body h2{font-size:19px;font-weight:700;line-height:1.45;margin-bottom:8px;transition:color 0.2s}
+  .body h2{font-size:19px;font-weight:700;line-height:1.45;margin-bottom:8px}
   .card:hover .body h2{color:#fca5a5}
   .body p{font-size:14px;color:#94a3b8;line-height:1.6;margin-bottom:16px}
   .foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px}
-  .read-btn{
-    background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;
-    padding:8px 15px;border-radius:10px;font-size:13px;font-weight:700;
-    box-shadow:0 4px 12px rgba(239,68,68,0.3);transition:0.2s;
-  }
-  .card:hover .read-btn{box-shadow:0 6px 18px rgba(239,68,68,0.55)}
-
-  /* Footer */
-  footer{
-    position:relative;z-index:10;background:rgba(5,8,15,0.9);
-    border-top:1px solid rgba(255,255,255,0.08);text-align:center;
-    padding:24px 16px;color:#64748b;font-size:13px;margin-top:50px;
-  }
-  footer a{color:#94a3b8;text-decoration:none;margin:0 8px;transition:color 0.2s}
-  footer a:hover{color:#fff}
+  .read-btn{background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;padding:8px 15px;border-radius:10px;font-size:13px;font-weight:700}
+  footer{position:relative;z-index:10;background:rgba(5,8,15,0.9);border-top:1px solid rgba(255,255,255,0.08);text-align:center;padding:24px 16px;color:#64748b;font-size:13px;margin-top:50px}
+  footer a{color:#94a3b8;text-decoration:none;margin:0 8px}
 </style>
 </head>
 <body>
-
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-<div class="orb orb-3"></div>
+<div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
 
 <header>
   <a href="index.html" style="text-decoration:none;display:flex;flex-direction:column;line-height:1.1">
-  <span class="logo">⏳ સમયચક્ર</span>
-  <span style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:0.5px;margin-top:2px;padding-left:28px">By:Vipul Chauhan</span>
-</a>
-  <div style="display:flex;gap:8px;align-items:center">
-    <button id="instBtn" onclick="installPWA()" style="display:none;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:0;padding:8px 14px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(16,185,129,0.4)">📲 Install App</button>
-    <input type="text" class="search-box" placeholder="🔍 વાર્તા શોધો..." oninput="searchStories(this.value)">
+    <span class="logo">⏳ સમયચક્ર</span>
+    <span style="font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:0.5px;margin-top:2px;padding-left:28px">By: Vipul Chauhan</span>
+  </a>
+  <div class="top-pill">⏳ ઇતિહાસ • સમાચાર • રહસ્ય • ટેકનોલોજી</div>
+  <div style="min-width:110px;text-align:right">
+    <button id="instBtn" onclick="installPWA()" style="display:none;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:0;padding:8px 14px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">📲 Install App</button>
   </div>
 </header>
 
 <section class="hero">
-  <span class="pill-tag">⏳ ઇતિહાસ • સમાચાર • રહસ્ય • ટેકનોલોજી</span>
+  <div id="top-ad-slot" class="ad-top-space"></div>
   <h1>ઇતિહાસ, રહસ્ય અને વિજ્ઞાનની દુનિયા</h1>
-  <p>ક્લિક કરો અને Play બટન દબાવો અથવા Voice પર ક્લિક કરીને સાંભળો</p>
+  <p class="hero-sub">ક્લિક કરો અને Play બટન દબાવો અથવા Voice પર ક્લિક કરીને સાંભળો</p>
   <div class="cats">
-    <button class="cbtn on" onclick="flt('all',this)">✨ બધી વાર્તાઓ</button>
+    <button class="cbtn on" onclick="flt('all',this)">✨ બધુજ અહિયાં</button>
     <button class="cbtn" onclick="flt('news',this)">📰 સમાચાર</button>
     <button class="cbtn" onclick="flt('horror',this)">👻 રહસ્યમય વાર્તાઓ</button>
     <button class="cbtn" onclick="flt('history',this)">🏛️ ઇતિહાસ</button>
@@ -166,10 +80,7 @@
 
 <footer>
   <div style="margin-bottom:12px">
-    <a href="about.html">About Us</a> •
-    <a href="privacy.html">Privacy Policy</a> •
-    <a href="disclaimer.html">Disclaimer</a> •
-    <a href="contact.html">Contact</a>
+    <a href="about.html">About Us</a> • <a href="privacy.html">Privacy Policy</a> • <a href="disclaimer.html">Disclaimer</a> • <a href="contact.html">Contact</a>
   </div>
   © 2026 સમયચક્ર (SamayChakra). All Rights Reserved.
 </footer>
@@ -181,22 +92,13 @@ const defaultStories = new Array({
   desc: "ગુજરાતના સ્થાપત્યનો અદભૂત નમૂનો ગણાતી અડાલજની વાવ પાછળ છુપાયેલો એક કરુણ ઇતિહાસ.",
   image: "Adalaj.jpg", readTime: "3 મિનિટ"
 });
-let allStories = defaultStories.slice();
-let currentCat = 'all';
+let allStories = defaultStories.slice(), currentCat = 'all';
 
 function render(list){
   const g = document.getElementById('grid');
-  if(!list.length){
-    g.innerHTML = '<p style="color:#94a3b8;text-align:center;grid-column:1/-1;padding:40px">કોઈ વાર્તા મળી નથી.</p>';
-    return;
-  }
+  if(!list.length){ g.innerHTML = '<p style="color:#94a3b8;text-align:center;grid-column:1/-1;padding:40px">આ કેટેગરીમાં હજુ કોઈ વાર્તા નથી.</p>'; return; }
   g.innerHTML = list.map(function(s, idx){
-    return '<article class="card" style="animation-delay:' + (idx * 0.08) + 's"><a href="story.html?id=' + s.id + '" class="card-link">' +
-      '<div class="thumb">' + (s.image ? '<img src="' + s.image + '" onerror="this.style.display=\'none\'">' : '') +
-      '<span class="badge">' + s.categoryName + '</span></div>' +
-      '<div class="body"><div><h2>' + s.title + '</h2><p>' + s.desc + '</p></div>' +
-      '<div class="foot"><span style="font-size:12px;color:#94a3b8">⏱ ' + (s.readTime || '3 મિનિટ') + '</span>' +
-      '<span class="read-btn">સ્ક્રોલ-સ્ટોરી વાંચો →</span></div></div></a></article>';
+    return '<article class="card" style="animation-delay:' + (idx * 0.08) + 's"><a href="story.html?id=' + s.id + '" class="card-link"><div class="thumb">' + (s.image ? '<img src="' + s.image + '" onerror="this.style.display=\'none\'">' : '') + '<span class="badge">' + s.categoryName + '</span></div><div class="body"><div><h2>' + s.title + '</h2><p>' + s.desc + '</p></div><div class="foot"><span style="font-size:12px;color:#94a3b8">⏱ ' + (s.readTime || '3 મિનિટ') + '</span><span class="read-btn">સ્ક્રોલ-સ્ટોરી વાંચો →</span></div></div></a></article>';
   }).join('');
 }
 
@@ -204,18 +106,7 @@ function flt(c, b){
   currentCat = c;
   document.querySelectorAll('.cbtn').forEach(function(x){ x.classList.remove('on'); });
   b.classList.add('on');
-  const list = c === 'all' ? allStories : allStories.filter(function(x){ return x.category === c; });
-  render(list);
-}
-
-function searchStories(q){
-  const term = q.trim().toLowerCase();
-  const base = currentCat === 'all' ? allStories : allStories.filter(function(x){ return x.category === currentCat; });
-  if(!term){ render(base); return; }
-  const filtered = base.filter(function(x){
-    return (x.title && x.title.toLowerCase().includes(term)) || (x.desc && x.desc.toLowerCase().includes(term));
-  });
-  render(filtered);
+  render(c === 'all' ? allStories : allStories.filter(function(x){ return x.category === c; }));
 }
 
 render(allStories);
@@ -226,31 +117,12 @@ fetch("stories.json?t=" + Date.now()).then(function(r){ return r.json(); }).then
     flt(currentCat, document.querySelector('.cbtn.on'));
   }
 }).catch(function(){});
-</script>
- <script>
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js');
-}
 
-let deferredPrompt;
-const instBtn = document.getElementById('instBtn');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  instBtn.style.display = 'inline-block';
-});
-
-function installPWA(){
-  if(!deferredPrompt) return;
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then((choice) => {
-    if(choice.outcome === 'accepted'){
-      instBtn.style.display = 'none';
-    }
-    deferredPrompt = null;
-  });
-}
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+let dp; const ib = document.getElementById('instBtn');
+window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); dp = e; ib.style.display = 'inline-block'; });
+function installPWA(){ if(!dp) return; dp.prompt(); dp.userChoice.then(function(c){ if(c.outcome === 'accepted') ib.style.display = 'none'; dp = null; }); }
 </script>
 </body>
 </html>
+<!-- COMPLETE -->
