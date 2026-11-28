@@ -16,7 +16,7 @@
 
   .wrap{max-width:950px;margin:24px auto;padding:0 16px;width:100%;flex:1}
   .card{background:rgba(17,24,39,0.85);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:22px;margin-bottom:22px;box-shadow:0 10px 30px rgba(0,0,0,0.4)}
-  .badge-live{background:#ef4444;color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;margin-bottom:12px}
+  .badge-live{background:#ef4444;color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:6px}
 
   .match-box{background:linear-gradient(135deg,#064e3b,#0f172a);border:1px solid #10b981;border-radius:16px;padding:18px;margin-bottom:14px}
   .teams{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}
@@ -44,14 +44,16 @@
 <div class="wrap">
 
   <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
-      <span class="badge-live" style="margin-bottom:0"><span class="live-dot" style="background:#fff"></span> LIVE SCOREBOARD</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+      <span class="badge-live"><span class="live-dot" style="background:#fff"></span> LIVE SCOREBOARD</span>
       <button onclick="loadLiveScores(true)" style="background:#10b981;color:#fff;border:0;padding:7px 14px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🔄 સ્કોર રિફ્રેશ કરો</button>
     </div>
 
     <div id="liveContainer">
-  <iframe src="https://crictimes.org" style="width:100%;min-height:420px;border:0;border-radius:14px;background:#0f172a" scrolling="yes"></iframe>
-</div>
+      <div class="match-box" style="text-align:center;padding:24px">
+        <p style="font-size:16px;font-weight:700;color:#6ee7b7">⏳ લાઈવ મેચ સ્કોર લોડ થઈ રહ્યા છે...</p>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -98,7 +100,6 @@
 </footer>
 
 <script>
-// 1. Load Manual Analysis from cricket-data.json
 fetch("cricket-data.json?t=" + Date.now()).then(function(r){ return r.json(); }).then(function(d){
   document.getElementById('mTitle').innerText = "👥 " + (d.matchTitle || "ટીમ સ્ક્વોડ અને પ્લેઈંગ-૧૧");
   document.getElementById('tAName').innerText = d.teamAName || "";
@@ -110,56 +111,56 @@ fetch("cricket-data.json?t=" + Date.now()).then(function(r){ return r.json(); })
   document.getElementById('eAnalysis').innerText = d.expertAnalysis || "";
 }).catch(function(){});
 
-// 2. Fetch Real Live Scores
 const CRIC_API_KEY = "d4543d14-4e4b-4dd3-b405-cbaf64ae538f";
 
 function loadLiveScores(force){
   const box = document.getElementById('liveContainer');
-  const cached = localStorage.getItem('cric_live_v3');
-  const cacheTime = localStorage.getItem('cric_time_v3');
+  const cached = localStorage.getItem('cric_clean_v4');
+  const cacheTime = localStorage.getItem('cric_time_v4');
 
-  if(!force && cached && cacheTime && (Date.now() - Number(cacheTime) < 180000)){
+  if(!force && cached && cacheTime && (Date.now() - Number(cacheTime) < 300000)){
     renderMatches(JSON.parse(cached));
     return;
   }
 
-  box.innerHTML = '<div class="match-box" style="text-align:center;padding:24px"><p style="color:#6ee7b7;font-weight:700">🔄 નવો લાઈવ સ્કોર આવી રહ્યો છે...</p></div>';
+  box.innerHTML = '<div class="match-box" style="text-align:center;padding:24px"><p style="color:#6ee7b7;font-weight:700">🔄 લાઈવ સ્કોર આવી રહ્યો છે...</p></div>';
 
   fetch("https://cricapi.com" + CRIC_API_KEY + "&offset=0")
     .then(function(res){ return res.json(); })
     .then(function(data){
       if(data && data.status === "success" && Array.isArray(data.data) && data.data.length > 0){
-        localStorage.setItem('cric_live_v3', JSON.stringify(data.data));
-        localStorage.setItem('cric_time_v3', String(Date.now()));
+        localStorage.setItem('cric_clean_v4', JSON.stringify(data.data));
+        localStorage.setItem('cric_time_v4', String(Date.now()));
         renderMatches(data.data);
       } else {
         box.innerHTML = '<div class="match-box" style="text-align:center;padding:24px"><p style="color:#fde047;font-weight:700">🏏 ' + (data.reason || "હાલમાં કોઈ મેચ લાઈવ નથી.") + '</p></div>';
       }
     })
     .catch(function(){
-      box.innerHTML = '<div class="match-box" style="text-align:center;padding:24px"><p style="color:#fca5a5;font-weight:700">⚠️ નેટવર્ક એરર! કૃપા કરીને મોબાઈલ ડેટા પર ચેક કરો અથવા રિફ્રેશ કરો.</p></div>';
+      box.innerHTML = '<div class="match-box" style="text-align:center;padding:24px"><p style="color:#fde047;font-weight:700">🏏 હાલમાં લાઈવ ફીડ ઉપલબ્ધ નથી. નીચે આજની મેચનું સંપૂર્ણ વિશ્લેષણ જુઓ ↓</p></div>';
     });
 }
 
 function renderMatches(matches){
   const box = document.getElementById('liveContainer');
-  box.innerHTML = matches.slice(0, 5).map(function(m){
+  box.innerHTML = matches.slice(0, 4).map(function(m){
     const sc = Array.isArray(m.score) ? m.score : [];
     const tm = Array.isArray(m.teams) ? m.teams : ['Team A', 'Team B'];
-    const s1 = sc.length > 0 ? (sc[0].r + "/" + sc[0].w + " (" + sc[0].o + " Ov)") : "Yet to bat";
-    const s2 = sc.length > 1 ? (sc[1].r + "/" + sc[1].w + " (" + sc[1].o + " Ov)") : "Yet to bat";
+    const s1 = sc.at(0) ? (sc.at(0).r + "/" + sc.at(0).w + " (" + sc.at(0).o + " Ov)") : "Yet to bat";
+    const s2 = sc.at(1) ? (sc.at(1).r + "/" + sc.at(1).w + " (" + sc.at(1).o + " Ov)") : "Yet to bat";
     return '<div class="match-box">' +
       '<small style="color:#a7f3d0">' + (m.matchType || 'MATCH').toUpperCase() + ' • ' + (m.name || '') + '</small>' +
       '<div class="teams">' +
-        '<div class="team"><h3>' + (tm[0] || 'Team A') + '</h3><div class="score">' + s1 + '</div></div>' +
+        '<div class="team"><h3>' + (tm.at(0) || 'Team A') + '</h3><div class="score">' + s1 + '</div></div>' +
         '<div style="font-weight:800;color:#ef4444">VS</div>' +
-        '<div class="team" style="text-align:right"><h3>' + (tm[1] || 'Team B') + '</h3><div class="score">' + s2 + '</div></div>' +
+        '<div class="team" style="text-align:right"><h3>' + (tm.at(1) || 'Team B') + '</h3><div class="score">' + s2 + '</div></div>' +
       '</div>' +
       '<div class="status-txt">🔥 ' + (m.status || '') + '</div>' +
     '</div>';
   }).join('');
 }
 
+loadLiveScores(false);
 </script>
 </body>
 </html>
