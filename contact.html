@@ -33,10 +33,12 @@
     
     <p>📧 <b>Email:</b> allthebestgujarat@gmail.com &nbsp;|&nbsp; 📍 <b>Location:</b> Wadhwan, Surendranagar, Gujarat, India</p>
 
-    <form onsubmit="event.preventDefault();alert('આભાર! તમારો સંદેશો મોકલાઈ ગયો છે. (Thank you! Your message has been sent.)');this.reset();">
-      <input type="text" placeholder="તમારું નામ / Your Name" required>
-      <input type="email" placeholder="તમારું ઈમેલ / Your Email" required>
-      <textarea rows="4" placeholder="તમારો સંદેશો / Your Message" required></textarea>
+        <form action="https://formsubmit.co" method="POST">
+      <input type="hidden" name="_subject" value="સમયચક્ર (SamayChakra) વેબસાઈટ પરથી નવો સંદેશો!">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="text" name="name" placeholder="તમારું નામ / Your Name" required>
+      <input type="email" name="email" placeholder="તમારું ઈમેલ / Your Email" required>
+      <textarea name="message" rows="4" placeholder="તમારો સંદેશો / Your Message" required></textarea>
       <button type="submit" class="btn">સંદેશો મોકલો (Send Message)</button>
     </form>
   </div>
