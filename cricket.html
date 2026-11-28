@@ -117,7 +117,7 @@ fetch("cricket-data.json?t=" + Date.now()).then(r => r.json()).then(d => {
 }).catch(() => {});
 
 // 2. Live Score API with Local Caching (Saves API quota)
-const CRIC_API_KEY = ""; // Ahi cricketdata.org ni free API key mukvi (athva Cloudflare Worker URL)
+const CRIC_API_KEY = "d4543d14-4e4b-4dd3-b405-cbaf64ae538f"; // Ahi cricketdata.org ni free API key mukvi (athva Cloudflare Worker URL)
 
 async function loadLiveScores(force){
   if(!CRIC_API_KEY) return;
