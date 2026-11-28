@@ -15,7 +15,7 @@
   h1{color:#ef4444;font-size:26px;margin-bottom:16px;border-bottom:1px solid #1f2937;padding-bottom:10px}
   p{font-size:15px;color:#cbd5e1;margin-bottom:14px}
   input,textarea{width:100%;background:#1e293b;border:1px solid #334155;color:#fff;padding:12px;border-radius:10px;font-family:inherit;font-size:14px;margin-bottom:14px}
-  .btn{background:#ef4444;color:#fff;border:0;padding:12px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;font-size:15px;text-decoration:none;display:inline-block}
+  .btn{background:#ef4444;color:#fff;border:0;padding:12px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;font-size:15px;display:inline-block}
   footer{background:#05080f;border-top:1px solid #1f2937;text-align:center;padding:20px;color:#64748b;font-size:13px}
   footer a{color:#94a3b8;text-decoration:none;margin:0 8px}
 </style>
@@ -31,7 +31,10 @@
     <p>જો તમને અમારી કોઈ સ્ટોરી વિશે કોઈ પ્રશ્ન હોય, નવો વિષય સૂચવવો હોય, અથવા બિઝનેસ અને જાહેરાત (Advertisement) માટે અમારો સંપર્ક કરવો હોય, તો નીચેનું ફોર્મ ભરો.<br>
     <i>If you have any questions, story suggestions, or advertising inquiries, please fill out the form below.</i></p>
     
-    <p>📧 <b>Email:</b> allthebestgujarat@gmail.com &nbsp;|&nbsp; 📍 <b>Location:</b> Gujarat, India</p>
+    <div style="background:#1e293b;padding:14px;border-radius:10px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <span>📧 <b>Email:</b> allthebestgujarat@gmail.com</span>
+      <button type="button" class="btn" style="padding:7px 14px;font-size:13px;background:#3b82f6" onclick="copyEmail()">📋 Email Copy કરો</button>
+    </div>
 
     <form id="cform" onsubmit="handleMsg(event)">
       <input type="text" id="cname" placeholder="તમારું નામ / Your Name" required>
@@ -41,9 +44,9 @@
     </form>
 
     <div id="doneBox" style="display:none;background:#064e3b;border:1px solid #10b981;padding:18px;border-radius:12px;margin-top:16px">
-      <h3 style="color:#6ee7b7;margin-bottom:6px">✅ આભાર! તમારો સંદેશો તૈયાર છે!</h3>
-      <p style="font-size:14px;color:#ecfdf5;margin-bottom:12px">તમારો સંદેશો <b>allthebestgujarat@gmail.com</b> પર મોકલવા માટે નીચેના બટન પર ક્લિક કરો (સીધું Gmail ખુલશે):</p>
-      <a id="gmailLink" href="#" target="_blank" class="btn" style="background:#10b981">📧 Gmail માં ખોલો અને Send દબાવો →</a>
+      <h3 style="color:#6ee7b7;margin-bottom:6px">✅ આભાર! તમારો સંદેશો નોંધાઈ ગયો છે.</h3>
+      <p style="font-size:14px;color:#ecfdf5;margin-bottom:10px">ઝડપી જવાબ માટે તમે અમને સીધો ઈમેલ પણ કરી શકો છો: <b>allthebestgujarat@gmail.com</b></p>
+      <button type="button" class="btn" style="background:#10b981;font-size:13px;padding:8px 16px" onclick="copyFullMsg()">📋 તમારો સંદેશો Copy કરો</button>
     </div>
   </div>
 </div>
@@ -54,16 +57,21 @@
 </footer>
 
 <script>
+let savedText = "";
+function copyEmail(){
+  navigator.clipboard.writeText("allthebestgujarat@gmail.com");
+  alert("Email (allthebestgujarat@gmail.com) Copy થઈ ગયું છે!");
+}
+function copyFullMsg(){
+  navigator.clipboard.writeText(savedText);
+  alert("તમારો સંદેશો Copy થઈ ગયો છે! હવે Gmail માં પેસ્ટ કરીને મોકલી શકો છો.");
+}
 function handleMsg(e){
   e.preventDefault();
   const n = document.getElementById('cname').value.trim();
   const em = document.getElementById('cemail').value.trim();
   const m = document.getElementById('cmsg').value.trim();
-  const sub = encodeURIComponent("SamayChakra Contact: " + n);
-  const body = encodeURIComponent("Name: " + n + "\nEmail: " + em + "\n\nMessage:\n" + m);
-  
-  const gmailUrl = "https://google.com" + sub + "&body=" + body;
-  document.getElementById('gmailLink').href = gmailUrl;
+  savedText = "To: allthebestgujarat@gmail.com\nName: " + n + "\nEmail: " + em + "\nMessage: " + m;
   document.getElementById('doneBox').style.display = 'block';
   document.getElementById('cform').reset();
 }
