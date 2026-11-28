@@ -43,78 +43,116 @@
 </div>
 
 <script>
-const fb={cat:"ઇતિહાસ",title:"અડાલજની વાવ: પથ્થરોમાં કોતરાયેલી અમર પ્રેમ અને બલિદાનની ગાથા",pubDate:"25 Nov 2026",s:[{t:"ઈસવીસન ૧૪૯૮માં ગુજરાતના પાટણ નજીક દાંડાઈ દેશના રાજા વીરસિંહ વાઘેલા રાજ કરતા હતા. તેમની રાણી રૂડાબાઈ અત્યંત રૂપવાન અને પ્રજાવત્સલ હતા.",i:"Adalaj.jpg",c:"#1e1b4b"},{t:"રાણી રૂડાબાઈએ પ્રજા માટે પાંચ માળ ઊંડી અને અદભૂત નકશીકામવાળી વાવ તૈયાર કરાવી અને પોતાના પતિની યાદમાં પ્રાણ ત્યાગી દીધા.",i:"Adalaj.jpg",c:"#1e1b4b"}]};
-let idx=0,playing=false,timer=null,speaking=false,tot=0,auds=[];
-const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');upd(Number(e.target.dataset.i));}});},{threshold:0.4});
+const fb = {
+  cat: "ઇતિહાસ",
+  title: "અડાલજની વાવ: પથ્થરોમાં કોતરાયેલી અમર પ્રેમ અને બલિદાનની ગાથા",
+  pubDate: "25 Nov 2026",
+  s: [
+    {t:"ઈસવીસન ૧૪૯૮માં ગુજરાતના પાટણ નજીક દાંડાઈ દેશના રાજા વીરસિંહ વાઘેલા રાજ કરતા હતા. તેમની રાણી રૂડાબાઈ અત્યંત રૂપવાન અને પ્રજાવત્સલ હતા.",i:"Adalaj.jpg",c:"#1e1b4b"},
+    {t:"રાણી રૂડાબાઈએ પ્રજા માટે પાંચ માળ ઊંડી અને અદભૂત નકશીકામવાળી વાવ તૈયાર કરાવી અને પોતાના પતિની યાદમાં પ્રાણ ત્યાગી દીધા.",i:"Adalaj.jpg",c:"#1e1b4b"}
+  ]
+};
+
+let idx = 0, playing = false, timer = null, speaking = false, tot = 0, auds = [];
+
+const obs = new IntersectionObserver(function(es){
+  es.forEach(function(e){
+    if(e.isIntersecting){ e.target.classList.add('show'); upd(Number(e.target.dataset.i)); }
+  });
+}, { threshold: 0.4 });
 
 function renderStory(st){
-  tot=st.s.length;
-  document.getElementById('bgs').innerHTML=st.s.map((x,i)=>'<div id="b'+i+'" class="bg '+(i===0?'active':'')+'" style="background-color:'+(x.c||'#1e1b4b')+';background-image:url(\''+x.i+'\')"></div>').join('');
-  document.getElementById('box').innerHTML='<div class="hero"><div><span class="badge">'+st.cat+'</span><h2 style="font-size:24px;margin-bottom:8px">'+st.title+'</h2><p style="font-size:12px;color:#fde047;margin-bottom:8px;font-weight:700">📅 '+(st.pubDate||'')+'</p><p style="color:#94a3b8;font-size:13px">નીચે સ્ક્રોલ કરો અથવા Play દબાવો ↓</p></div></div>'+st.s.map((x,i)=>'<div class="sec" id="sec-'+i+'" data-i="'+i+'"><div class="card" id="card-'+i+'">'+x.t+'</div></div>').join('');
-  document.querySelectorAll('.sec').forEach(el=>obs.observe(el));
+  tot = st.s.length;
+  document.getElementById('bgs').innerHTML = st.s.map(function(x,i){
+    return '<div id="b'+i+'" class="bg '+(i===0?'active':'')+'" style="background-color:'+(x.c||'#1e1b4b')+';background-image:url(\''+x.i+'\')"></div>';
+  }).join('');
+  document.getElementById('box').innerHTML = '<div class="hero"><div><span class="badge">'+st.cat+'</span><h2 style="font-size:24px;margin-bottom:8px">'+st.title+'</h2><p style="font-size:12px;color:#fde047;margin-bottom:8px;font-weight:700">📅 '+(st.pubDate||'')+'</p><p style="color:#94a3b8;font-size:13px">નીચે સ્ક્રોલ કરો અથવા Play દબાવો ↓</p></div></div>' +
+    st.s.map(function(x,i){
+      return '<div class="sec" id="sec-'+i+'" data-i="'+i+'"><div class="card" id="card-'+i+'">'+x.t+'</div></div>';
+    }).join('');
+  document.querySelectorAll('.sec').forEach(function(el){ obs.observe(el); });
   upd(0);
 }
 
 function upd(i){
-  idx=i;
-  document.querySelectorAll('.bg').forEach((b,k)=>b.classList.toggle('active',k===i));
-  document.getElementById('pg').style.width=(((i+1)/tot)*100)+'%';
-  document.getElementById('cnt').innerText=(i+1)+' / '+tot;
+  idx = i;
+  document.querySelectorAll('.bg').forEach(function(b,k){ b.classList.toggle('active',k===i); });
+  document.getElementById('pg').style.width = (((i+1)/tot)*100)+'%';
+  document.getElementById('cnt').innerText = (i+1)+' / '+tot;
 }
 
 function stopV(){
   if('speechSynthesis' in window) window.speechSynthesis.cancel();
-  auds.forEach(a=>{if(a){a.pause();a.currentTime=0;}});
-  document.querySelectorAll('.card').forEach(c=>c.classList.remove('speaking'));
+  auds.forEach(function(a){ if(a){ a.pause(); a.currentTime=0; } });
+  document.querySelectorAll('.card').forEach(function(c){ c.classList.remove('speaking'); });
 }
 
 function togglePlay(){
-  playing=!playing; const b=document.getElementById('pbtn');
-  if(playing){b.innerText='⏸ Pause';b.classList.add('on');go(idx);}
-  else{b.innerText='▶ Play';b.classList.remove('on');clearTimeout(timer);stopV();}
+  playing = !playing;
+  const b = document.getElementById('pbtn');
+  if(playing){ b.innerText='⏸ Pause'; b.classList.add('on'); go(idx); }
+  else { b.innerText='▶ Play'; b.classList.remove('on'); clearTimeout(timer); stopV(); }
 }
 
 function toggleVoice(){
-  speaking=!speaking; const v=document.getElementById('vbtn');
-  if(speaking){v.innerText='🗣️ Voice: ON';v.classList.add('on');if(playing){clearTimeout(timer);go(idx);}else speak(idx,()=>{});}
-  else{v.innerText='🗣️ Voice: OFF';v.classList.remove('on');stopV();}
+  speaking = !speaking;
+  const v = document.getElementById('vbtn');
+  if(speaking){
+    v.innerText='🗣️ Voice: ON'; v.classList.add('on');
+    if(playing){ clearTimeout(timer); go(idx); } else speak(idx, function(){});
+  } else { v.innerText='🗣️ Voice: OFF'; v.classList.remove('on'); stopV(); }
 }
 
-function speak(i,done){
-  stopV(); const c=document.getElementById('card-'+i); if(!c)return done();
-  const txt=c.innerText.trim(); c.classList.add('speaking');
-  const parts=txt.match(/[^।.?!]+[।.?!]*/g)||[txt]; let p=0;
+function speak(i, done){
+  stopV();
+  const c = document.getElementById('card-'+i);
+  if(!c) return done();
+  const txt = c.innerText.trim();
+  c.classList.add('speaking');
+  const parts = txt.match(/[^।.?!]+[।.?!]*/g) || [txt];
+  let p = 0;
   function nxt(){
-    if(!speaking||p>=parts.length){c.classList.remove('speaking');return done();}
-    const q=encodeURIComponent(parts[p++].trim().slice(0,180)); if(!q)return nxt();
-    const au=new Audio('https://google.com);
-    auds.push(au); au.onended=nxt; au.onerror=nxt; au.play().catch(nxt);
+    if(!speaking || p >= parts.length){ c.classList.remove('speaking'); return done(); }
+    const q = encodeURIComponent(parts[p++].trim().slice(0,180));
+    if(!q) return nxt();
+    const au = new Audio('https://google.com);
+    auds.push(au); au.onended = nxt; au.onerror = nxt; au.play().catch(nxt);
   }
   nxt();
 }
 
 function go(i){
-  if(!playing)return;
-  if(i>=tot){playing=false;document.getElementById('pbtn').innerText='▶ Replay';document.getElementById('pbtn').classList.remove('on');stopV();return;}
-  const el=document.getElementById('sec-'+i); if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+  if(!playing) return;
+  if(i >= tot){
+    playing = false; document.getElementById('pbtn').innerText='▶ Replay';
+    document.getElementById('pbtn').classList.remove('on'); stopV(); return;
+  }
+  const el = document.getElementById('sec-'+i);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
   upd(i);
-  if(speaking) speak(i,()=>{if(playing)timer=setTimeout(()=>go(i+1),800);});
-  else timer=setTimeout(()=>go(i+1),Number(document.getElementById('spd').value));
+  if(speaking) speak(i, function(){ if(playing) timer = setTimeout(function(){ go(i+1); }, 800); });
+  else timer = setTimeout(function(){ go(i+1); }, Number(document.getElementById('spd').value));
 }
 
 function getDt(id){
-  if(id&&id.indexOf('st-')===0){const t=Number(id.replace('st-',''));if(!isNaN(t)&&t>1000000)return new Date(t).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+  if(id && id.indexOf('st-') === 0){
+    const t = Number(id.replace('st-',''));
+    if(!isNaN(t) && t > 1000000) return new Date(t).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  }
   return '25 Nov 2026';
 }
 
-const sid=new URLSearchParams(location.search).get('id');
-if(!sid||sid==="adalaj-ni-vav") renderStory(fb);
-else{
-  fetch(sid+".json?t="+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json();}).then(f=>renderStory({cat:f.categoryName,title:f.title,pubDate:getDt(f.id),s:f.s})).catch(()=>{
-    fetch("stories.json?t="+Date.now()).then(r=>r.json()).then(a=>{
-      const f=Array.isArray(a)?a.find(x=>x.id===sid):null;
-      if(f) renderStory({cat:f.categoryName,title:f.title,pubDate:getDt(f.id),s:f.s}); else renderStory(fb);
-    }).catch(()=>renderStory(fb));
+const sid = new URLSearchParams(location.search).get('id');
+if(!sid || sid === "adalaj-ni-vav") renderStory(fb);
+else {
+  fetch(sid+".json?t="+Date.now()).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(f){
+    renderStory({cat:f.categoryName, title:f.title, pubDate:getDt(f.id), s:f.s});
+  }).catch(function(){
+    fetch("stories.json?t="+Date.now()).then(function(r){ return r.json(); }).then(function(a){
+      const f = Array.isArray(a) ? a.find(function(x){ return x.id === sid; }) : null;
+      if(f) renderStory({cat:f.categoryName, title:f.title, pubDate:getDt(f.id), s:f.s});
+      else renderStory(fb);
+    }).catch(function(){ renderStory(fb); });
   });
 }
 </script>
