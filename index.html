@@ -127,12 +127,23 @@ const defaultStories = new Array({
   image: "Adalaj.jpg", readTime: "3 મિનિટ"
 });
 let allStories = defaultStories.slice(), currentCat = 'all';
-
+function fmtDate(s){
+  if(s.pubDate) return s.pubDate;
+  if(s.id && s.id.startsWith('st-')){
+    const ts = Number(s.id.replace('st-',''));
+    if(!isNaN(ts)){
+      const d = new Date(ts);
+      return d.toLocaleDateString('gu-IN', {day:'2-digit', month:'short', year:'numeric'}) + ' • ' + d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+    }
+  }
+  return '25 નવે, 2026';
+}
 function render(list){
   const g = document.getElementById('grid');
   if(!list.length){ g.innerHTML = '<p style="color:#94a3b8;text-align:center;grid-column:1/-1;padding:40px">આ કેટેગરીમાં હજુ કોઈ વાર્તા નથી.</p>'; return; }
   g.innerHTML = list.map(function(s, idx){
-    return '<article class="card" style="animation-delay:' + (idx * 0.08) + 's"><a href="story.html?id=' + s.id + '" class="card-link"><div class="thumb">' + (s.image ? '<img src="' + s.image + '" onerror="this.style.display=\'none\'">' : '') + '<span class="badge">' + s.categoryName + '</span></div><div class="body"><div><h2>' + s.title + '</h2><p>' + s.desc + '</p></div><div class="foot"><span style="font-size:12px;color:#94a3b8">⏱ ' + (s.readTime || '3 મિનિટ') + '</span><span class="read-btn">સ્ક્રોલ-સ્ટોરી વાંચો →</span></div></div></a></article>';
+    return '<article class="card" style="animation-delay:' + (idx * 0.08) + 's"><a href="story.html?id=' + s.id + '" class="card-link"><div class="thumb">' + (s.image ? '<img src="' + s.image + '" onerror="this.style.display=\'none\'">' : '') + '<span class="badge">' + s.categoryName + '</span></div><div class="body"><div><h2>' + s.title + '</h2><p>' + s.desc + '</p></div><div class="foot"><span style="font-size:12px;color:#94a3b8">📅 ' + fmtDate(s) + ' • ⏱ ' + (s.readTime || '3 મિનિટ') + '
+</span><span class="read-btn">સ્ક્રોલ-સ્ટોરી વાંચો →</span></div></div></a></article>';
   }).join('');
 }
 
