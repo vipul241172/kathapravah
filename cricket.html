@@ -46,7 +46,7 @@
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px">
       <span class="badge-live"><span class="live-dot" style="background:#fff"></span> LIVE SCOREBOARD</span>
-      <button onclick="loadLiveScores(true)" style="background:#10b981;color:#fff;border:0;padding:7px 14px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🔄 સ્કોર રિફ્રેશ કરો</button>
+      <button onclick="loadLiveScores()" style="background:#10b981;color:#fff;border:0;padding:7px 14px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🔄 સ્કોર રિફ્રેશ કરો</button>
     </div>
 
     <div id="liveContainer">
@@ -100,6 +100,7 @@
 </footer>
 
 <script>
+// 1. Load Manual Analysis from cricket-data.json
 fetch("cricket-data.json?t=" + Date.now()).then(function(r){ return r.json(); }).then(function(d){
   document.getElementById('mTitle').innerText = "👥 " + (d.matchTitle || "ટીમ સ્ક્વોડ અને પ્લેઈંગ-૧૧");
   document.getElementById('tAName').innerText = d.teamAName || "";
@@ -111,26 +112,17 @@ fetch("cricket-data.json?t=" + Date.now()).then(function(r){ return r.json(); })
   document.getElementById('eAnalysis').innerText = d.expertAnalysis || "";
 }).catch(function(){});
 
-const CRIC_API_KEY = "d4543d14-4e4b-4dd3-b405-cbaf64ae538f";
+// 2. Fetch Live Scores via Cloudflare Cached Worker (Unlimited Users)
+const WORKER_URL = "https://workers.dev";
 
-function loadLiveScores(force){
+function loadLiveScores(){
   const box = document.getElementById('liveContainer');
-  const cached = localStorage.getItem('cric_clean_v4');
-  const cacheTime = localStorage.getItem('cric_time_v4');
-
-  if(!force && cached && cacheTime && (Date.now() - Number(cacheTime) < 300000)){
-    renderMatches(JSON.parse(cached));
-    return;
-  }
-
   box.innerHTML = '<div class="match-box" style="text-align:center;padding:24px"><p style="color:#6ee7b7;font-weight:700">🔄 લાઈવ સ્કોર આવી રહ્યો છે...</p></div>';
 
-  fetch("https://cricapi.com" + CRIC_API_KEY + "&offset=0")
+  fetch(WORKER_URL)
     .then(function(res){ return res.json(); })
     .then(function(data){
       if(data && data.status === "success" && Array.isArray(data.data) && data.data.length > 0){
-        localStorage.setItem('cric_clean_v4', JSON.stringify(data.data));
-        localStorage.setItem('cric_time_v4', String(Date.now()));
         renderMatches(data.data);
       } else {
         box.innerHTML = '<div class="match-box" style="text-align:center;padding:24px"><p style="color:#fde047;font-weight:700">🏏 ' + (data.reason || "હાલમાં કોઈ મેચ લાઈવ નથી.") + '</p></div>';
@@ -143,24 +135,24 @@ function loadLiveScores(force){
 
 function renderMatches(matches){
   const box = document.getElementById('liveContainer');
-  box.innerHTML = matches.slice(0, 4).map(function(m){
+  box.innerHTML = matches.slice(0, 5).map(function(m){
     const sc = Array.isArray(m.score) ? m.score : [];
     const tm = Array.isArray(m.teams) ? m.teams : ['Team A', 'Team B'];
-    const s1 = sc.at(0) ? (sc.at(0).r + "/" + sc.at(0).w + " (" + sc.at(0).o + " Ov)") : "Yet to bat";
-    const s2 = sc.at(1) ? (sc.at(1).r + "/" + sc.at(1).w + " (" + sc.at(1).o + " Ov)") : "Yet to bat";
+    const s1 = sc.length > 0 ? (sc[0].r + "/" + sc[0].w + " (" + sc[0].o + " Ov)") : "Yet to bat";
+    const s2 = sc.length > 1 ? (sc[1].r + "/" + sc[1].w + " (" + sc[1].o + " Ov)") : "Yet to bat";
     return '<div class="match-box">' +
       '<small style="color:#a7f3d0">' + (m.matchType || 'MATCH').toUpperCase() + ' • ' + (m.name || '') + '</small>' +
       '<div class="teams">' +
-        '<div class="team"><h3>' + (tm.at(0) || 'Team A') + '</h3><div class="score">' + s1 + '</div></div>' +
+        '<div class="team"><h3>' + (tm[0] || 'Team A') + '</h3><div class="score">' + s1 + '</div></div>' +
         '<div style="font-weight:800;color:#ef4444">VS</div>' +
-        '<div class="team" style="text-align:right"><h3>' + (tm.at(1) || 'Team B') + '</h3><div class="score">' + s2 + '</div></div>' +
+        '<div class="team" style="text-align:right"><h3>' + (tm[1] || 'Team B') + '</h3><div class="score">' + s2 + '</div></div>' +
       '</div>' +
       '<div class="status-txt">🔥 ' + (m.status || '') + '</div>' +
     '</div>';
   }).join('');
 }
 
-loadLiveScores(false);
+loadLiveScores();
 </script>
 </body>
 </html>
