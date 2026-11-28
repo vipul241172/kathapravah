@@ -83,7 +83,6 @@ fetch("stories.json?t=" + Date.now()).then(function(r){ return r.json(); }).then
   const box = document.getElementById('cList');
   if(!Array.isArray(all)){ box.innerHTML = ''; return; }
   let list = all.filter(function(x){ return x.category === 'cricket'; });
-  if(!list.length) list = all.filter(function(x){ return x.category === 'news'; });
   if(!list.length){ box.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">હજુ કોઈ ક્રિકેટ સ્ટોરી નથી.</p>'; return; }
   box.innerHTML = list.map(function(s, i){
     return '<a href="story.html?id=' + s.id + '" class="c-story" style="animation-delay:' + (i*0.07) + 's"><div class="c-thumb"><img src="' + (s.image||'Adalaj.jpg') + '" onerror="this.src=\'Adalaj.jpg\'"><div class="p-icon">▶</div></div><div class="c-info"><h3>' + s.title + '</h3><p>' + (s.desc||'') + '</p><span class="c-meta">⏱ ' + (s.readTime||'3 મિનિટ') + ' • પૂરી સ્ટોરી ચલાવો →</span></div></a>';
